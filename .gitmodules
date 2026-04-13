@@ -1,0 +1,12 @@
+[submodule "techs/pysam-wind-energy-simulation"]
+	path = techs/pysam-wind-energy-simulation
+	url = https://github.com/THD-Spatial-AI/pysam-wind-energy-simulation.git
+[submodule "techs/pysam-photovoltaic-energy-simulation"]
+	path = techs/pysam-photovoltaic-energy-simulation
+	url = https://github.com/THD-Spatial-AI/pysam-photovoltaic-energy-simulation.git
+[submodule "techs/pysam-biomass-energy-simulation"]
+	path = techs/pysam-biomass-energy-simulation
+	url = https://github.com/THD-Spatial-AI/pysam-biomass-energy-simulation
+[submodule "techs/pysam-geothermal-energy-simulation"]
+	path = techs/pysam-geothermal-energy-simulation
+	url = https://github.com/THD-Spatial-AI/pysam-geothermal-energy-simulation.git
