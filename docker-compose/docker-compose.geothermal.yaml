@@ -1,0 +1,34 @@
+services:
+  geothermal_simulation_EnerplanET:
+    image: geothermal:latest
+    volumes:
+      - sim_shared_data:/webservice/data
+      - sim_shared_data:/geothermal_simulation/output_data
+    platform: linux/amd64
+    build:
+      context: ../techs/
+      dockerfile: geothermal.dockerfile
+      args:
+        - gitlab_token_geothermal=$gitlab_token_geothermal
+    restart: always
+    ports:
+      - 8087:8087/tcp
+    environment:
+      - GUNICORN_WORKERS=${GEOTHERMAL_WORKERS:-15}
+      - GUNICORN_TIMEOUT=0
+    networks:
+      sim_network:
+        ipv4_address: 172.20.0.6
+
+volumes:
+  sim_shared_data:
+    external: true
+
+networks:
+  sim_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

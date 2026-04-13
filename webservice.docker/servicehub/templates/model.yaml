@@ -1,0 +1,27 @@
+import:
+  - model_config/techs.yaml
+  - model_config/locations.yaml
+  - scenarios.yaml
+
+model:
+  calliope_version: 0.6.10
+  name: 'Polygons'
+  timeseries_data_path: ../../data
+
+run:
+  mode: plan
+  bigM: 1e6
+  ensure_feasibility: true
+
+  objective_options:
+    cost_class:
+      monetary: 1
+
+  solver: appsi_highs
+  solver_options:
+    threads: 32
+    time_limit: .inf
+    mip_rel_gap: 0.02
+    presolve: 'on'
+    parallel: 'on'
+    SOLVER_METHOD_PLACEHOLDER

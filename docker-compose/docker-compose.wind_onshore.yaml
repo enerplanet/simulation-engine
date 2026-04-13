@@ -1,0 +1,34 @@
+services:
+    wind_onshore_simulation_EnerplanET:
+        image: wind-nrel-pysam
+        volumes:
+            - sim_shared_data:/webservice/data
+            - sim_shared_data:/wind_simulation/output_data
+        platform: linux/amd64
+        build:
+            context: ../techs/
+            dockerfile: wind.dockerfile
+            args:
+                - gitlab_token_wind=$gitlab_token_wind
+        restart: always
+        ports:
+            - 8093:8083/tcp
+        environment:
+            - GUNICORN_WORKERS=${WIND_WORKERS:-15}
+            - GUNICORN_TIMEOUT=0
+        networks:
+            sim_network:
+                ipv4_address: 172.20.0.4
+
+volumes:
+  sim_shared_data:
+    external: true
+
+networks:
+    sim_network:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.20.0.0/16
+                  gateway: 172.20.0.1

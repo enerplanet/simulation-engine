@@ -1,0 +1,620 @@
+{
+	"title": "Calliope Schema",
+	"type": "object",
+	"properties": {
+		"user_id": { "type": ["number", "string"] },
+		"model_id": { "type": ["number", "string"] },
+		"session_id": { "type": ["number", "string"] },
+		"lkr": { "type": "string" },
+		"callback_url": {
+			"type": "string",
+			"format": "uri"
+		},
+		"start_date": {
+			"type": "string",
+			"format": "date-time"
+		},
+		"end_date": {
+			"type": "string",
+			"format": "date-time"
+		},
+		"resolution": {
+			"type": "number",
+			"enum": [15, 30, 60]
+		},
+		"topology": {
+			"type": "array",
+			"items": { "$ref": "#/definitions/connection" }
+		},
+		"pypsa": {
+			"type": "object",
+			"properties": {
+				"trafo_mv_lv_type": { "type": "string" },
+				"line_type_mv": { "type": "string" },
+				"line_type_lv": { "type": "string" }
+			}
+		}
+	},
+
+	"required": [
+		"user_id",
+		"model_id",
+		"session_id",
+		"lkr",
+		"callback_url",
+		"start_date",
+		"end_date",
+		"resolution",
+		"topology",
+		"pypsa"
+	],
+	
+	"definitions": {
+	
+		"connection": {
+			"title": "Connection Schema",
+			"type": "object",
+			"properties": {
+				"from": { "$ref": "#/definitions/feature" },
+				"to":  { "$ref": "#/definitions/feature" },
+				"length": { "type": "number" },
+				"pipe": { "type": "string" }
+			},
+			"required": ["from", "to", "length", "pipe"],
+			"additionalProperties": false
+		},
+		
+		"feature": {
+			"title": "Feature Schema",
+			"type": "object",
+			"properties": {
+				"id": { "type": ["number", "string"] },
+				"type": {
+					"type": "string",
+					"const": "Feature"
+				},
+				"geometry": { "$ref": "#/definitions/geometry" },
+				"properties": {
+					"oneOf": [
+						{ "$ref": "#/definitions/property" },
+						{ "$ref": "#/definitions/topology_property" },
+						{ "$ref": "#/definitions/trafo_property" }
+					]
+				},
+				"techs": {
+					"oneOf": [
+						{ "$ref": "#/definitions/tech" },
+						{ "type": "null" } 
+					]
+				},
+				"custom_demand_timeseries": {
+					"oneOf": [
+						{ "$ref": "#/definitions/custom_demand_timeseries" },
+						{ "type": "null" }
+					]
+				}
+			},
+			"required": [ "id", "type", "geometry", "properties", "techs", "custom_demand_timeseries" ],
+			"additionalProperties": false
+		},
+		
+		"geometry": {
+			"title": "Geometry Schema",
+			"type": "object",
+			"properties": {
+				"type": {
+					"type": "string",
+					"const": "Point"
+				},
+				"coordinates":  {
+					"type": "array",
+					"items": {
+    					"type": "number"
+  					},
+  					"minItems": 2,
+  					"maxItems": 2
+				}
+			},
+			"required": ["type", "coordinates"],
+			"additionalProperties": false
+		},
+		
+		"property": {
+			"title": "Property Schema",
+			"type": "object",
+			"properties": {
+				"id": { "type": ["number", "string"] },
+				"f_class": { "type": "string" },
+				"f_classes": {
+					"oneOf": [
+						{ "type": "array", "items": { "type": "string" } },
+						{ "type": "null" }
+					]
+				},
+				"type": { "type": "string" },
+				"amenities": {
+					"oneOf": [
+						{ "type": "array", "items": { "type": "string" } },
+						{ "type": "null" },
+						{ "type": "string" }
+					]
+				},
+				"feature_type": {
+					"type": "string",
+					"enum": ["BasePOI", "CustomPOI"]
+				},
+				"osm_id": { "type": "string" },
+				"area": { "type": "number" },
+				"session_id": { "type": ["number", "string"] },
+				"slp_class": {
+					"type": "string",
+					"enum": [ "ZD", "CD", "SFH", "TH", "MFH", "AB", "Commercial", "Public", "Industrial", "Agricultural" ]
+				},
+				"demand_profile": {
+					"type": ["string", "null"]
+				},
+				"f_class_demands": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object"
+							}
+						},
+						{ "type": "null" }
+					]
+				},
+				"demand_energy": {
+					"type": "number"
+				},
+				"demand_heat": {
+					"type": "number"
+				},
+				"created_at": {
+					"type": ["null", "string"],
+					"format": "date-time"
+				},
+				"modified_at": {
+					"type": ["null", "string"],
+					"format": "date-time"
+				},
+				"parsed_class": {
+					"type": "string",
+					"enum": [ "ZD", "CD", "SFH", "TH", "MFH", "AB", "Commercial", "Public", "Industrial", "Agricultural" ]
+				}
+			},
+			"required": [ "id", "f_class", "feature_type", "osm_id", "area", "session_id", "demand_energy", "demand_heat", "created_at", "modified_at" ],
+			"additionalProperties": false
+		},
+
+		"topology_property": {
+			"title": "Topology Property Schema",
+			"type": "object",
+			"properties": {
+				"id": { "type": ["number", "string"] },
+				"f_class": {
+					"oneOf": [
+						{ "type": "null" },
+						{ "type": "string" }
+					]
+				},
+				"f_classes": {
+					"oneOf": [
+						{ "type": "null" },
+						{ "type": "array", "items": { "type": "string" } }
+					]
+				},
+				"amenities": {
+					"oneOf": [
+						{ "type": "null" },
+						{ "type": "array", "items": { "type": "string" } },
+						{ "type": "string" }
+					]
+				},
+				"feature_type": {
+					"type": "string",
+					"const": "TopologyNode"
+				},
+				"osm_id": { "type": "string" },
+				"area": { "type": "null" },
+				"session_id": { "type": ["number", "string"] },
+				"slp_class": {
+					"oneOf": [
+						{
+							"type": "string",
+							"enum": [ "ZD" ]
+						},
+						{ "type": "null" }
+					]
+				},
+				"demand_profile": {
+					"type": ["string", "null"]
+				},
+				"f_class_demands": {
+					"oneOf": [
+						{
+							"type": "array",
+							"items": {
+								"type": "object"
+							}
+						},
+						{ "type": "null" }
+					]
+				},
+				"demand_energy": { "type": "number" },
+				"demand_heat": { "type": "number" },
+				"created_at": { "type": "null" },
+				"modified_at": { "type": "null" },
+				"parsed_class": {
+					"oneOf": [
+						{ "type": "null" },
+						{ "type": "string" }
+					]
+				},
+				"rated_power": { "type": "number" }
+			},
+			"required": [ "id", "f_class", "feature_type", "osm_id", "area", "session_id", "created_at", "demand_energy","demand_heat", "modified_at" ],
+			"additionalProperties": false
+		},
+		
+		"trafo_property": {
+			"title": "Trafo Property Schema",
+			"type": "object",
+			"properties": {
+				"id": { "type": ["number", "string"] },
+				"f_class": {
+					"type": "string",
+					"const": "Trafo"
+				},
+				"feature_type": {
+					"type": "string",
+					"const": "BasePOI"
+				},
+				"osm_id": { 
+					"type": "string",
+					"const": "Trafo"
+				},
+				"area": {
+					"type": "number",
+					"const": -1
+				},
+				"session_id": { "type": ["number", "string"] },
+				"slp_class": { "type": "null" },
+				"demand_energy": { 
+					"type": "number",
+					"const": -1
+				},
+				"demand_heat": {
+					"type": "number",
+					"const": -1
+				},
+				"created_at": {
+					"type": ["null", "string"],
+					"format": "date-time"
+				},
+				"modified_at": {
+					"type": ["null", "string"],
+					"format": "date-time"
+				},
+				"parsed_class": {
+					"type": "string",
+					"const": "transformer"
+				}
+			},
+			"required": [ "id", "f_class", "feature_type", "osm_id", "area", "session_id", "slp_class", "demand_energy", "demand_heat", "created_at", "modified_at", "parsed_class" ],
+			"additionalProperties": false
+		},
+		
+		"tech": {
+			"title": "Tech Schema",
+			"type": "object",
+			"properties": {
+				"pv_supply": {
+					"type": "object",
+					"properties": {
+						"cont_resource_unit": { "type": ["string", "null"] },
+						"cont_energy_cap_max": { "type": ["number", "string"] },
+						"cont_energy_cap_max_systemwide": { "type": ["number", "string"] },
+						"cont_energy_cap_min": { "type": ["number", "string"] },
+						"cont_energy_cap_scale": { "type": ["number", "string"] },
+						"cont_energy_eff": { "type": ["number", "string"] },
+						"cont_export_max": { "type": ["number", "string"] },
+						"cont_energy_eff_per_distance": { "type": ["number", "string"] },
+						"cont_export_cap": { "type": ["number", "string"] },
+						"cont_lifetime": { "type": ["number", "string"] },
+						"cont_parasitic_eff": { "type": ["number", "string"] },
+						"cont_resource_area_max": { "type": ["number", "string"] },
+						"cont_resource_area_min": { "type": ["number", "string"] },
+						"cont_resource_cap_max": { "type": ["number", "string"] },
+						"cont_resource_cap_min": { "type": ["number", "string"] },
+						"cont_resource_eff": { "type": ["number", "string"] },
+						"cont_resource_scale": { "type": ["number", "string"] },
+						"cont_storage_cap_max": { "type": ["number", "string"] },
+						"cont_storage_cap_min": { "type": ["number", "string"] },
+						"cont_storage_discharge_depth": { "type": ["number", "string"] },
+						"cont_storage_initial": { "type": ["number", "string"] },
+						"cont_storage_loss": { "type": ["number", "string"] },
+						"cont_units_max_systemwide": { "type": ["number", "string"] },
+						"tilt": { "type": ["number", "string"] },
+						"azimuth": { "type": ["number", "string"] },
+						"system_capacity": { "type": ["number", "string"] },
+						"module_type": { "type": ["number", "string"] },
+						"inv_eff": { "type": ["number", "string"] },
+						"inverter_type": { "type": ["number", "string"] },
+						"optimize_orientation": { "type": ["boolean", "number"] },
+						"losses": { "type": ["number", "string"] },
+						"dc_ac_ratio": { "type": ["number", "string"] },
+						"gcr": { "type": ["number", "string"] },
+						"array_type": { "type": ["number", "string"] },
+						"cost_energy_cap": { "type": ["number", "string"] },
+						"cost_energy_cap_per_distance": { "type": ["number", "string"] },
+						"cost_export": { "type": ["number", "string"] },
+						"cost_interest_rate": { "type": ["number", "string"] },
+						"cost_om_annual": { "type": ["number", "string"] },
+						"cost_om_annual_investment_fraction": { "type": ["number", "string"] },
+						"cost_om_con": { "type": ["number", "string"] },
+						"cost_om_prod": { "type": ["number", "string"] },
+						"cost_purchase": { "type": ["number", "string"] },
+						"cost_resource_area": { "type": ["number", "string"] },
+						"cost_resource_cap": { "type": ["number", "string"] },
+						"cost_storage_cap": { "type": ["number", "string"] }
+					},
+					"additionalProperties": false
+				},
+				"wind_onshore": {
+					"type": "object",
+					"properties": {
+						"cont_resource_unit": { "type": ["string", "null"] },
+						"cont_energy_cap_max": { "type": ["number", "string"] },
+						"cont_energy_cap_max_systemwide": { "type": ["number", "string"] },
+						"cont_energy_cap_min": { "type": ["number", "string"] },
+						"cont_energy_eff": { "type": ["number", "string"] },
+						"cont_export_cap": { "type": ["number", "string"] },
+						"cont_lifetime": { "type": ["number", "string"] },
+						"cont_resource_area_max": { "type": ["number", "string"] },
+						"cont_resource_area_min": { "type": ["number", "string"] },
+						"cont_resource_cap_max": { "type": ["number", "string"] },
+						"cont_resource_cap_min": { "type": ["number", "string"] },
+						"cont_resource_eff": { "type": ["number", "string"] },
+						"turbine_id": { "type": ["number", "string"] },
+						"nominal_power": { "type": ["number", "string"] },
+						"hub_height": { "type": ["number", "string"] },
+						"rotor_diameter": { "type": ["number", "string"] },
+						"cost_energy_cap": { "type": ["number", "string"] },
+						"cost_export": { "type": ["number", "string"] },
+						"cost_interest_rate": { "type": ["number", "string"] },
+						"cost_om_annual": { "type": ["number", "string"] },
+						"cost_om_annual_investment_fraction": { "type": ["number", "string"] },
+						"cost_om_con": { "type": ["number", "string"] },
+						"cost_om_prod": { "type": ["number", "string"] },
+						"cost_purchase": { "type": ["number", "string"] },
+						"cost_resource_area": { "type": ["number", "string"] },
+						"cost_resource_cap": { "type": ["number", "string"] },
+						"cost_storage_cap": { "type": ["number", "string"] }
+					},
+					"additionalProperties": false
+				},
+				"geothermal_supply": {
+					"type": "object",
+					"properties": {
+						"cont_resource_unit": { "type": ["string", "null"] },
+						"cont_energy_cap_max": { "type": ["number", "string"] },
+						"cont_energy_cap_max_systemwide": { "type": ["number", "string"] },
+						"cont_energy_cap_min": { "type": ["number", "string"] },
+						"cont_energy_eff": { "type": ["number", "string"] },
+						"cont_export_cap": { "type": ["number", "string"] },
+						"cont_lifetime": { "type": ["number", "string"] },
+						"cont_resource_area_max": { "type": ["number", "string"] },
+						"cont_resource_area_min": { "type": ["number", "string"] },
+						"cont_resource_cap_max": { "type": ["number", "string"] },
+						"cont_resource_cap_min": { "type": ["number", "string"] },
+						"cont_efficiency": { "type": ["number", "string"] },
+						"num_wells": { "type": ["number", "string"] },
+						"plant_efficiency_input": { "type": ["number", "string"] },
+						"resource_depth": { "type": ["number", "string"] },
+						"well_flow_rate": { "type": ["number", "string"] },
+						"pump_efficiency": { "type": ["number", "string"] },
+						"resource_temp": { "type": ["number", "string"] },
+						"specified_pump_work_amount": { "type": ["number", "string"] },
+						"conversion_type": { "type": ["number", "string"] },
+						"cost_energy_cap": { "type": ["number", "string"] },
+						"cost_export": { "type": ["number", "string"] },
+						"cost_interest_rate": { "type": ["number", "string"] },
+						"cost_om_annual": { "type": ["number", "string"] },
+						"cost_om_annual_investment_fraction": { "type": ["number", "string"] },
+						"cost_om_con": { "type": ["number", "string"] },
+						"cost_om_prod": { "type": ["number", "string"] },
+						"cost_purchase": { "type": ["number", "string"] },
+						"cost_resource_area": { "type": ["number", "string"] },
+						"cost_resource_cap": { "type": ["number", "string"] },
+						"cost_storage_cap": { "type": ["number", "string"] }
+					},
+					"additionalProperties": false
+				},
+				"battery_storage": {
+					"type": "object",
+					"properties": {
+						"cont_resource_unit": { "type": ["string", "null"] },
+						"cont_energy_cap_max": { "type": ["number", "string"] },
+						"cont_energy_cap_max_systemwide": { "type": ["number", "string"] },
+						"cont_energy_cap_min": { "type": ["number", "string"] },
+						"cont_energy_cap_scale": { "type": ["number", "string"] },
+						"cont_energy_eff": { "type": ["number", "string"] },
+						"cont_export_max": { "type": ["number", "string"] },
+						"cont_energy_eff_per_distance": { "type": ["number", "string"] },
+						"cont_export_cap": { "type": ["number", "string"] },
+						"cont_lifetime": { "type": ["number", "string"] },
+						"cont_parasitic_eff": { "type": ["number", "string"] },
+						"cont_resource": { "type": ["number", "string"] },
+						"cont_resource_area_max": { "type": ["number", "string"] },
+						"cont_resource_area_min": { "type": ["number", "string"] },
+						"cont_resource_cap_max": { "type": ["number", "string"] },
+						"cont_resource_cap_min": { "type": ["number", "string"] },
+						"cont_resource_eff": { "type": ["number", "string"] },
+						"cont_resource_scale": { "type": ["number", "string"] },
+						"cont_storage_cap_max": { "type": ["number", "string"] },
+						"cont_storage_cap_min": { "type": ["number", "string"] },
+						"cont_storage_discharge_depth": { "type": ["number", "string"] },
+						"cont_storage_initial": { "type": ["number", "string"] },
+						"cont_storage_loss": { "type": ["number", "string"] },
+						"cont_units_max_systemwide": { "type": ["number", "string"] },
+						"cost_energy_cap": { "type": ["number", "string"] },
+						"cost_energy_cap_per_distance": { "type": ["number", "string"] },
+						"cost_export": { "type": ["number", "string"] },
+						"cost_interest_rate": { "type": ["number", "string"] },
+						"cost_om_annual": { "type": ["number", "string"] },
+						"cost_om_annual_investment_fraction": { "type": ["number", "string"] },
+						"cost_purchase": { "type": ["number", "string"] },
+						"cost_resource_area": { "type": ["number", "string"] },
+						"cost_resource_cap": { "type": ["number", "string"] },
+						"cost_storage_cap": { "type": ["number", "string"] }
+					},
+					"additionalProperties": false
+				},
+				"water_supply": {
+					"type": "object",
+					"properties": {
+						"cont_resource_unit": { "type": ["string", "null"] },
+						"cont_energy_cap_max": { "type": ["number", "string"] },
+						"cont_energy_cap_max_systemwide": { "type": ["number", "string"] },
+						"cont_energy_cap_min": { "type": ["number", "string"] },
+						"cont_energy_cap_scale": { "type": ["number", "string"] },
+						"cont_energy_eff": { "type": ["number", "string"] },
+						"cont_export_max": { "type": ["number", "string"] },
+						"cont_energy_eff_per_distance": { "type": ["number", "string"] },
+						"cont_export_cap": { "type": ["number", "string"] },
+						"cont_lifetime": { "type": ["number", "string"] },
+						"cont_parasitic_eff": { "type": ["number", "string"] },
+						"cont_resource": { "type": ["number", "string"] },
+						"cont_resource_area_max": { "type": ["number", "string"] },
+						"cont_resource_area_min": { "type": ["number", "string"] },
+						"cont_resource_cap_max": { "type": ["number", "string"] },
+						"cont_resource_cap_min": { "type": ["number", "string"] },
+						"cont_resource_eff": { "type": ["number", "string"] },
+						"cont_resource_scale": { "type": ["number", "string"] },
+						"cont_storage_cap_max": { "type": ["number", "string"] },
+						"cont_storage_cap_min": { "type": ["number", "string"] },
+						"cont_storage_discharge_depth": { "type": ["number", "string"] },
+						"cont_storage_initial": { "type": ["number", "string"] },
+						"cont_storage_loss": { "type": ["number", "string"] },
+						"cont_units_max_systemwide": { "type": ["number", "string"] },
+						"cost_energy_cap": { "type": ["number", "string"] },
+						"cost_energy_cap_per_distance": { "type": ["number", "string"] },
+						"cost_export": { "type": ["number", "string"] },
+						"cost_interest_rate": { "type": ["number", "string"] },
+						"cost_om_annual": { "type": ["number", "string"] },
+						"cost_om_annual_investment_fraction": { "type": ["number", "string"] },
+						"cost_om_con": { "type": ["number", "string"] },
+						"cost_om_prod": { "type": ["number", "string"] },
+						"cost_purchase": { "type": ["number", "string"] },
+						"cost_resource_area": { "type": ["number", "string"] },
+						"cost_resource_cap": { "type": ["number", "string"] },
+						"cost_storage_cap": { "type": ["number", "string"] }
+					},
+					"additionalProperties": false
+				},
+				"households_supply": {
+					"type": "object",
+					"properties": {
+						"cont_resource_unit": { "type": ["string", "null"] },
+						"cont_energy_cap_max": { "type": ["number", "string"] },
+						"cont_resource" : { "type": ["number", "string"] },
+						"cost_interest_rate": { "type": ["number", "string"] },
+						"cost_om_con": { "type": ["number", "string"] }
+					},
+					"additionalProperties": false
+				},
+				"non_households_supply": {
+					"type": "object",
+					"properties": {
+						"cont_resource_unit": { "type": ["string", "null"] },
+						"cont_energy_cap_max": { "type": ["number", "string"] },
+						"cont_resource" : { "type": ["number", "string"] },
+						"cost_interest_rate": { "type": ["number", "string"] },
+						"cost_om_con": { "type": ["number", "string"] }
+					},
+					"additionalProperties": false
+				},
+				"biomass_supply": {
+					"type": "object",
+					"properties": {
+						"cont_resource_unit": { "type": ["string", "null"] },
+						"cont_energy_cap_max": { "type": ["number", "string"] },
+						"cont_energy_cap_max_systemwide": { "type": ["number", "string"] },
+						"cont_energy_cap_min": { "type": ["number", "string"] },
+						"cont_energy_cap_scale": { "type": ["number", "string"] },
+						"cont_energy_eff": { "type": ["number", "string"] },
+						"cont_export_max": { "type": ["number", "string"] },
+						"cont_energy_eff_per_distance": { "type": ["number", "string"] },
+						"cont_export_cap": { "type": ["number", "string"] },
+						"cont_lifetime": { "type": ["number", "string"] },
+						"cont_resource": { "type": ["number", "string"] },
+						"cont_resource_area_max": { "type": ["number", "string"] },
+						"cont_resource_area_min": { "type": ["number", "string"] },
+						"cont_resource_cap_max": { "type": ["number", "string"] },
+						"cont_resource_cap_min": { "type": ["number", "string"] },
+						"cont_resource_eff": { "type": ["number", "string"] },
+						"cont_resource_scale": { "type": ["number", "string"] },
+						"feedstock_per_year" : { "type": ["number", "string"] },
+						"boiler_efficiency" : { "type": ["number", "string"] },
+						"total_hhv" : { "type": ["number", "string"] },
+						"steam_grade_psig" : { "type": ["number", "string"] },
+						"boiler_numbers" : { "type": ["number", "string"] },
+						"parasitic_load" : { "type": ["number", "string"] },
+						"flue_gas_temperature" : { "type": ["number", "string"] },
+						"combustor_type" : { "type": ["number", "string"] },
+						"feedstock_type" : { "type": ["number", "string"] },
+						"cont_storage_cap_max": { "type": ["number", "string"] },
+						"cont_storage_cap_min": { "type": ["number", "string"] },
+						"cont_storage_discharge_depth": { "type": ["number", "string"] },
+						"cont_storage_initial": { "type": ["number", "string"] },
+						"cont_storage_loss": { "type": ["number", "string"] },
+						"cont_units_max_systemwide": { "type": ["number", "string"] },
+						"cost_energy_cap": { "type": ["number", "string"] },
+						"cost_energy_cap_per_distance": { "type": ["number", "string"] },
+						"cost_export": { "type": ["number", "string"] },
+						"cost_interest_rate": { "type": ["number", "string"] },
+						"cost_om_annual": { "type": ["number", "string"] },
+						"cost_om_annual_investment_fraction": { "type": ["number", "string"] },
+						"cost_om_con": { "type": ["number", "string"] },
+						"cost_om_prod": { "type": ["number", "string"] },
+						"cost_purchase": { "type": ["number", "string"] }
+					},
+					"additionalProperties": false
+				}
+			},
+			"additionalProperties": false
+		},
+
+		"custom_demand_timeseries": {
+			"title": "Custom Demand Timeseries",
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"start_time": {
+					"type": "string"
+				},
+				"delta_time": {
+					"type": "number",
+					"enum": [ 15, 30, 60 ]
+				},
+				"end_time": {
+					"type": "string"
+				},
+				"values": {
+					"type": "object"
+				},
+				"width": {
+					"type": "number"
+				},
+				"length": {
+					"type": "number"
+				}
+			},
+			"required": [ "id", "start_time", "delta_time", "end_time", "values", "width", "length" ],
+			"additionalProperties": false
+		}
+	}
+}

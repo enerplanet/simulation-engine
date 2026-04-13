@@ -1,0 +1,123 @@
+services:
+    # HAProxy Load Balancer for simulation engine
+    sim_haproxy:
+        image: haproxy:2.9-alpine
+        container_name: sim-haproxy
+        ports:
+            - 8089:8089/tcp
+            - 8405:8405/tcp  # Stats dashboard
+        volumes:
+            - ./haproxy/haproxy.dev.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+        depends_on:
+            - s6et_webservice_1
+            - s6et_webservice_2
+        networks:
+            sim_network:
+                ipv4_address: 172.20.0.10
+            spatialhub-net:
+        restart: always
+
+    # Simulation engine instance 1
+    s6et_webservice_1:
+        image: s6et_webservice
+        container_name: s6et-webservice-1
+        volumes:
+            - sim_shared_data:/webservice/data
+        platform: linux/amd64
+        build:
+            context: ../webservice.docker/
+            dockerfile: webservice.dockerfile
+        restart: always
+        expose:
+            - "8081"
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        environment:
+            - SERVER_HOST=0.0.0.0
+            - SERVER_PORT=8081
+            - REQUEST_TIMEOUT=0
+            - RETRY_ATTEMPTS=0
+            - RETRY_BASE_DELAY=1000
+            - MAX_CONCURRENT_SIMS=5
+            - PV_SERVICE_HOST=172.20.0.3
+            - PV_SERVICE_PORT=8082
+            - WIND_SERVICE_HOST=172.20.0.4
+            - WIND_SERVICE_PORT=8083
+            - BIOMASS_SERVICE_HOST=172.20.0.5
+            - BIOMASS_SERVICE_PORT=8084
+            - GEOTHERMAL_SERVICE_HOST=172.20.0.6
+            - GEOTHERMAL_SERVICE_PORT=8087
+            - CALLBACK_HOST=host.docker.internal
+            - CALLBACK_PORT=3001
+        deploy:
+            resources:
+                limits:
+                    cpus: '2'
+                    memory: 4G
+                reservations:
+                    cpus: '2'
+                    memory: 4G
+        networks:
+            sim_network:
+                ipv4_address: 172.20.0.21
+            spatialhub-net:
+
+    # Simulation engine instance 2
+    s6et_webservice_2:
+        image: s6et_webservice
+        container_name: s6et-webservice-2
+        volumes:
+            - sim_shared_data:/webservice/data
+        platform: linux/amd64
+        build:
+            context: ../webservice.docker/
+            dockerfile: webservice.dockerfile
+        restart: always
+        expose:
+            - "8081"
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        environment:
+            - SERVER_HOST=0.0.0.0
+            - SERVER_PORT=8081
+            - REQUEST_TIMEOUT=0
+            - RETRY_ATTEMPTS=0
+            - RETRY_BASE_DELAY=1000
+            - MAX_CONCURRENT_SIMS=5
+            - PV_SERVICE_HOST=172.20.0.3
+            - PV_SERVICE_PORT=8082
+            - WIND_SERVICE_HOST=172.20.0.4
+            - WIND_SERVICE_PORT=8083
+            - BIOMASS_SERVICE_HOST=172.20.0.5
+            - BIOMASS_SERVICE_PORT=8084
+            - GEOTHERMAL_SERVICE_HOST=172.20.0.6
+            - GEOTHERMAL_SERVICE_PORT=8087
+            - CALLBACK_HOST=host.docker.internal
+            - CALLBACK_PORT=3001
+        deploy:
+            resources:
+                limits:
+                    cpus: '2'
+                    memory: 4G
+                reservations:
+                    cpus: '2'
+                    memory: 4G
+        networks:
+            sim_network:
+                ipv4_address: 172.20.0.22
+            spatialhub-net:
+
+volumes:
+  sim_shared_data:
+    external: true
+
+networks:
+    sim_network:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.20.0.0/16
+                  gateway: 172.20.0.1
+    spatialhub-net:
+        external: true

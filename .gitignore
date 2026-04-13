@@ -1,0 +1,7 @@
+*.log
+webservice.docker/webservice/sims/
+git-commit-sha
+gurobi.lic
+gitlab_token.txt
+.env
+sim_334_1772203093
