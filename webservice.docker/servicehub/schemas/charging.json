@@ -1,0 +1,49 @@
+{
+	"title": "Charging Schema",
+	"type": "object",
+	"properties": {
+		"id": { "type": "number" },
+		"charging_stations": {
+			"type": "array",
+			"items": { "$ref": "#/definitions/charging_station" }
+		},
+		"start_date": { 
+			"type": ["string"],
+			"format": "date-time"
+		},
+		"end_date": { 
+			"type": ["string"],
+			"format": "date-time"
+		}
+	},
+	"required": [
+		"id",
+		"charging_stations",
+		"start_date",
+		"end_date"
+	],
+	"additionalProperties": false,
+	
+	"definitions": {
+	
+		"charging_station": {
+			"title": "Charging Station Schema",
+			"type": "object",
+			"properties": {
+				"poi_id": { "type": "number" },
+				"location": { 
+					"type": "string",
+					"enum": ["industrial", "urban", "suburban", "rural", "uninhabitated"]
+				},
+				"power_kw": { "type": "number" }
+			},
+			"required": [
+				"poi_id",
+				"location",
+				"power_kw"
+			],
+			"additionalProperties": false
+		}
+	}
+}
+

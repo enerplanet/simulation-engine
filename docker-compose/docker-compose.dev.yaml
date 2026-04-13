@@ -1,0 +1,69 @@
+# Development docker-compose with hot reload
+# Usage: docker compose -f docker-compose.dev.yaml watch
+
+services:
+    # Single instance for development with hot reload
+    s6et_webservice:
+        image: s6et_webservice:dev
+        container_name: s6et-webservice-dev
+        volumes:
+            - techs_sim_data:/webservice/data
+            # Mount source for hot reload
+            - ../webservice.docker/servicehub:/webservice:ro
+        platform: linux/amd64
+        build:
+            context: ../webservice.docker/
+            dockerfile: webservice.dockerfile
+        restart: unless-stopped
+        ports:
+            - 8089:8081/tcp
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        environment:
+            - SERVER_HOST=0.0.0.0
+            - SERVER_PORT=8081
+            - REQUEST_TIMEOUT=0
+            - RETRY_ATTEMPTS=0
+            - RETRY_BASE_DELAY=1000
+            - PV_SERVICE_HOST=172.20.0.3
+            - PV_SERVICE_PORT=8082
+            - WIND_SERVICE_HOST=172.20.0.4
+            - WIND_SERVICE_PORT=8083
+            - BIOMASS_SERVICE_HOST=172.20.0.5
+            - BIOMASS_SERVICE_PORT=8084
+            - GEOTHERMAL_SERVICE_HOST=172.20.0.6
+            - GEOTHERMAL_SERVICE_PORT=8087
+            - CALLBACK_HOST=host.docker.internal
+            - CALLBACK_PORT=3001
+            - MAX_CONCURRENT_SIMS=10
+        networks:
+            sim_network:
+                ipv4_address: 172.20.0.21
+            spatialhub-net:
+        develop:
+            watch:
+                # Rebuild on Go source changes
+                - action: rebuild
+                  path: ../webservice.docker/webservice
+                  target: /tmp/webservice
+                # Sync Python/config changes without rebuild
+                - action: sync+restart
+                  path: ../webservice.docker/servicehub
+                  target: /webservice
+                  ignore:
+                    - "**/__pycache__"
+                    - "**/*.pyc"
+
+volumes:
+    techs_sim_data:
+
+networks:
+    sim_network:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.20.0.0/16
+                  gateway: 172.20.0.1
+    spatialhub-net:
+        external: true

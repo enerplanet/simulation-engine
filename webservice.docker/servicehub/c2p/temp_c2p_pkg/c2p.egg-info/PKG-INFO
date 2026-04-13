@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: c2p
+Version: 1.0.5
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: pypsa
+Requires-Dist: xarray
+Requires-Dist: netCDF4
+Dynamic: requires-dist

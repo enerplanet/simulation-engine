@@ -1,0 +1,34 @@
+services:
+  biomass_simulation_EnerplanET:
+    image: biomass-nrel-pysam
+    volumes:
+      - sim_shared_data:/webservice/data
+      - sim_shared_data:/biomass_simulation/output_data
+    platform: linux/amd64
+    build:
+      context: ../techs/
+      dockerfile: biomass.dockerfile
+      args:
+        - gitlab_token_biomass=$gitlab_token_biomass
+    restart: always
+    ports:
+      - 8084:8084/tcp
+    environment:
+      - GUNICORN_WORKERS=${BIOMASS_WORKERS:-15}
+      - GUNICORN_TIMEOUT=0
+    networks:
+      sim_network:
+        ipv4_address: 172.20.0.5
+
+volumes:
+  sim_shared_data:
+    external: true
+
+networks:
+  sim_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

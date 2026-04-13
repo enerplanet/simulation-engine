@@ -1,0 +1,244 @@
+techs:
+  transformer_supply:
+    essentials:
+      name: 'Transformer'
+      color: '#E37A72'
+      parent: supply
+      carrier: power
+    constraints:
+      resource: .inf
+      energy_cap_max: .inf
+      lifetime: 20
+      export_carrier: power
+      export_cap: .inf
+    costs:
+      monetary:
+        interest_rate: 0.07
+        om_prod: 0.30
+
+  pv_supply:
+    essentials:
+      name: 'Photovoltaik1'
+      color: '#00AAAA'
+      parent: supply_plus
+      carrier: power
+    constraints:
+      energy_cap_max: 5000
+      resource_unit: energy_per_cap
+      force_resource: true
+      export_carrier: power
+      export_cap: .inf
+      parasitic_eff: 1.0
+      lifetime: 25
+    costs:
+      monetary:
+        om_annual: 8.0
+        energy_cap: 575
+        interest_rate: 0.02
+        
+  wind_onshore:
+    essentials:
+      name: 'Windkraftanlage'
+      color: '#FF0000'
+      parent: supply_plus
+      carrier_out: power
+    constraints:
+      energy_cap_max: 12000 #kw
+      resource_unit: energy_per_cap
+      force_resource: true
+      lifetime: 25
+      energy_cap_min: 0
+    costs:
+      monetary:
+        interest_rate: 0.05
+        energy_cap: 1600
+        om_prod: 0
+        om_annual: 35
+
+  battery_storage:
+    essentials:
+      name: 'Battery'
+      color: '#3B61E3'
+      parent: storage
+      carrier: power
+    constraints:
+      energy_cap_max: 8715
+      storage_cap_max: 8889.3
+      energy_eff: 0.97
+      storage_loss: 0
+      lifetime: 11
+      charge_rate: 0.7
+    costs:
+      monetary:
+        om_annual: 25.19
+        energy_cap: 1028
+        interest_rate: 0.02
+        storage_cap: 1007.93
+
+  water_supply:
+    essentials:
+      name: 'Wasserkraftwerke'
+      color: '#f9229c'
+      parent: supply
+      carrier_out: power
+    constraints:
+      resource: .inf
+      energy_eff: 0.85
+      energy_cap_max: 4700
+      lifetime: 80 
+    costs:
+      monetary:
+        om_annual: 52.5
+        interest_rate: 0.02
+        om_prod: -0.0616 
+
+  biomass_supply:
+    essentials:
+      name: 'Biomassekraftwerk'
+      color: '#228030'
+      parent: supply_plus
+      carrier_out: power
+    constraints:
+      energy_cap_max: 5000
+      resource_unit: energy_per_cap
+      energy_eff: 0.25
+      force_resource: true
+      lifetime: 20
+      energy_cap_min: 0
+    costs:
+      monetary:
+        interest_rate: 0.07
+        energy_cap: 6500
+        om_prod: 0.096 # €/kWh_el, fuel + variable O&M (wood chips ~40-60€/t, ~0.01€/kWh_th / 0.25 eff)
+        om_annual: 80
+
+  households_supply:
+    essentials:
+      name: Household consumers
+      parent: supply
+      carrier: power
+    constraints:
+      energy_cap_max: .inf # Unlimited capacity (
+      resource: .inf # Unlimited resource availability
+    costs:
+      monetary:
+        interest_rate: 0.02
+        om_prod: 0.3943 # €/kWh, Electricity prices for Household consumers, with an annual consuption between 2.5 MWh and 5 MWh(second half of 2024, https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Electricity_price_statistics)
+
+  non_households_supply:
+      essentials:
+        name: Non-Household consumers
+        parent: supply
+        carrier: power
+      constraints:
+        energy_cap_max: .inf # Unlimited capacity 
+        resource: .inf # Unlimited resource availability
+      costs:
+        monetary:
+          interest_rate: 0.02
+          om_prod: 0.2359 # €/kWh, Electricity prices for Non-Household, with an annual consuption between 500 MWh and 2000 MWh (second half of 2024, https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Electricity_price_statistics)
+
+  geothermal_supply:
+    essentials:
+      name: 'Geothermie'
+      color: '#873737'
+      parent: supply_plus
+      carrier_out: power
+    constraints:
+      energy_cap_max: 30000 #kw
+      resource_unit: energy_per_cap
+      force_resource: true
+      lifetime: 50
+      energy_cap_min: 0
+    costs:
+      monetary:
+        interest_rate: 0.08
+        energy_cap: 5000
+        om_prod: 0
+        om_annual: 100
+
+  zd_demand:
+    essentials:
+      name: 'Zero Demand'
+      color: '#000000'
+      parent: demand
+      carrier: power
+
+  cd_demand:
+    essentials:
+      name: 'Custom Demand'
+      color: '#FFFFFF'
+      parent: demand
+      carrier: power
+
+  # Building Type Demands (pylovo classification)
+  sfh_demand:
+    essentials:
+      name: 'Single Family House (SFH)'
+      color: '#4A90D9'
+      parent: demand
+      carrier: power
+
+  th_demand:
+    essentials:
+      name: 'Townhouse (TH)'
+      color: '#5A9FE9'
+      parent: demand
+      carrier: power
+
+  mfh_demand:
+    essentials:
+      name: 'Multi Family House (MFH)'
+      color: '#3A80C9'
+      parent: demand
+      carrier: power
+
+  ab_demand:
+    essentials:
+      name: 'Apartment Block (AB)'
+      color: '#2A70B9'
+      parent: demand
+      carrier: power
+
+  commercial_demand:
+    essentials:
+      name: 'Commercial'
+      color: '#F5A623'
+      parent: demand
+      carrier: power
+
+  public_demand:
+    essentials:
+      name: 'Public Building'
+      color: '#7ED321'
+      parent: demand
+      carrier: power
+
+  industrial_demand:
+    essentials:
+      name: 'Industrial'
+      color: '#9B9B9B'
+      parent: demand
+      carrier: power
+
+  agricultural_demand:
+    essentials:
+      name: 'Agricultural'
+      color: '#8B4513'
+      parent: demand
+      carrier: power
+
+  power_transmission:
+    essentials:
+      name: 'Power Transmission'
+      color: '#6783E3'
+      parent: transmission
+      carrier: power
+    constraints:
+      energy_cap_max: .inf
+      lifetime: 40
+    costs:
+      monetary:
+        energy_cap: 668 # €/kW, Derived from the PyPSA-Eur database for the electricity distribution grid
+        om_annual: 13.36 # €/kW/yr, ~2% of CAPEX for fixed operation and maintenance
+        interest_rate: 0.0624 # Current statutory determination by the BNetzA for the equity interest rate applied to new network assets
