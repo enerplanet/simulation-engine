@@ -5,6 +5,7 @@
 		"user_id": { "type": ["number", "string"] },
 		"model_id": { "type": ["number", "string"] },
 		"session_id": { "type": ["number", "string"] },
+		"country": { "type": "string", "minLength": 1 },
 		"lkr": { "type": "string" },
 		"callback_url": {
 			"type": "string",
@@ -40,6 +41,7 @@
 		"user_id",
 		"model_id",
 		"session_id",
+		"country",
 		"lkr",
 		"callback_url",
 		"start_date",

@@ -145,8 +145,10 @@ func (c *Calliope) Start() http.HandlerFunc {
 			slotHeld = true
 			// Acquired slot — will be released by ExecCMDWithSemaphore when command finishes
 		default:
-			// No slots available - reject request
-			http.Error(w, "Server at capacity. Maximum concurrent simulations reached. Please try again later.", http.StatusServiceUnavailable)
+			w.Header().Set(contTypeHeader, contTypeAppJSON)
+			w.Header().Set("Retry-After", "30")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			fmt.Fprint(w, `{"error":"capacity","code":"SIM_AT_CAPACITY","retry_after_seconds":30,"message":"Server at capacity. Maximum concurrent simulations reached. Please try again later."}`)
 			return
 		}
 		defer func() {
@@ -191,6 +193,12 @@ func (c *Calliope) Start() http.HandlerFunc {
 		if err := json.Unmarshal(body, &request); err != nil {
 			utils.Log(err)
 			http.Error(w, readRequestDataErrMsg, http.StatusBadRequest)
+			return
+		}
+
+		if strings.TrimSpace(request.Country) == "" {
+			utils.Log(errors.New("country is required"))
+			http.Error(w, "country is required", http.StatusBadRequest)
 			return
 		}
 
@@ -306,8 +314,19 @@ func (c *Calliope) Start() http.HandlerFunc {
 		if !pypsaEnabled {
 			pypsaFlag = "false"
 		}
-		cmd := fmt.Sprintf("%s %s %s %s '%s' '%s' %s", cmdCalliope, userID, modelID, sessionID, lkr, callbackURL, pypsaFlag)
-		if err := utils.ExecCMDWithSemaphore(cmd, sem); err != nil {
+		// Pass arguments directly as argv — NOT via "bash -c <string>" — so
+		// values like lkr/callbackURL can't shell-escape. calliope.sh receives
+		// $1..$7 either way, so the script itself does not need to change.
+		calliopeArgs := []string{
+			cmdCalliopeScript,
+			userID,
+			modelID,
+			sessionID,
+			lkr,
+			callbackURL,
+			pypsaFlag,
+		}
+		if err := utils.ExecArgvWithSemaphore(cmdCalliopeBin, calliopeArgs, sem); err != nil {
 			utils.Log(err)
 			http.Error(w, executeCMDErrMsg, http.StatusBadRequest)
 			return

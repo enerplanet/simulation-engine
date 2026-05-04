@@ -51,6 +51,8 @@ const (
 	durationsFile = "durations.csv"
 	cmdCalliope   = "bash ./" + scriptFolderPath + "/calliope.sh"
 	cmdPyPSA      = "bash ./" + scriptFolderPath + "/pypsa.sh"
+	cmdCalliopeBin    = "bash"
+	cmdCalliopeScript = "./" + scriptFolderPath + "/calliope.sh"
 )
 
 const (

@@ -379,6 +379,23 @@ func ExecCMDWithSemaphore(cmdString string, sem chan struct{}) error {
 	return nil
 }
 
+func ExecArgvWithSemaphore(binary string, args []string, sem chan struct{}) error {
+	cmd := exec.Command(binary, args...)
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	go func() {
+		if waitErr := cmd.Wait(); waitErr != nil {
+			log.Printf("Command finished with error: %v (binary: %s args: %v)", waitErr, binary, args)
+		}
+		<-sem
+	}()
+
+	return nil
+}
+
 // SendFailureCallback sends a failure status to the platform callback URL
 // so the model is marked as failed instead of staying in "calculating".
 func SendFailureCallback(callbackURL, userID, modelID, errorMessage, callbackSecret string) error {

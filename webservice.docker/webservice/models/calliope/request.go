@@ -7,6 +7,7 @@ type Request struct {
 	UserID       interface{} `json:"user_id" yaml:"user_id"`
 	ModelID      interface{} `json:"model_id" yaml:"model_id"`
 	SessionID    interface{} `json:"session_id" yaml:"session_id"`
+	Country      string      `json:"country" yaml:"country"`
 	Lkr          string      `json:"lkr" yaml:"lkr"`
 	CallbackURL  string      `json:"callback_url" yaml:"callback_url"`
 	StartDate    time.Time   `json:"start_date" yaml:"start_date"`
