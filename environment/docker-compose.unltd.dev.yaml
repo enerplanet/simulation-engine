@@ -6,7 +6,7 @@ services:
         container_name: buem-api
         build:
             context: .
-            dockerfile: buem.dockerfile
+            dockerfile: building-model/buem.dockerfile
         restart: unless-stopped
         expose:
             - "5000"
@@ -55,7 +55,7 @@ services:
         container_name: ignis-api
         build:
             context: .
-            dockerfile: ignis.dockerfile
+            dockerfile: building-model/ignis.dockerfile
         restart: unless-stopped
         depends_on:
             - ignis_db
@@ -102,7 +102,7 @@ services:
         platform: linux/amd64
         build:
             context: ../engine/
-            dockerfile: webservice.dockerfile
+            dockerfile: ../environment/gateway/webservice.dockerfile
         restart: always
         expose:
             - "8081"
@@ -147,7 +147,7 @@ services:
         platform: linux/amd64
         build:
             context: ../engine/
-            dockerfile: webservice.dockerfile
+            dockerfile: ../environment/gateway/webservice.dockerfile
         restart: always
         expose:
             - "8081"

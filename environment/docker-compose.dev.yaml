@@ -13,7 +13,7 @@ services:
         platform: linux/amd64
         build:
             context: ../engine/
-            dockerfile: webservice.dockerfile
+            dockerfile: ../environment/gateway/webservice.dockerfile
         restart: unless-stopped
         ports:
             - 8089:8081/tcp
