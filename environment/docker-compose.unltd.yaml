@@ -5,7 +5,7 @@ services:
     buem-service:
         container_name: buem-api
         build:
-            context: ../services/
+            context: .
             dockerfile: buem.dockerfile
         restart: unless-stopped
         expose:
@@ -54,7 +54,7 @@ services:
     ignis-service:
         container_name: ignis-api
         build:
-            context: ../services/
+            context: .
             dockerfile: ignis.dockerfile
         restart: unless-stopped
         depends_on:

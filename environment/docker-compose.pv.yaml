@@ -6,7 +6,7 @@ services:
             - sim_shared_data:/pv_simulation/output_data
         platform: linux/amd64
         build:
-            context: ../services/
+            context: .
             dockerfile: pv.dockerfile
         restart: always
         ports:

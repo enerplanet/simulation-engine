@@ -49,18 +49,18 @@ build: build-calliope build-webservice
 
 build-nocache:
 	@echo "Building calliope base image (no cache)..."
-	docker build --network=host --no-cache --tag calliope-base:latest -f engine/calliope.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --no-cache --tag calliope-base:latest -f environment/calliope.dockerfile engine/ --platform linux/amd64
 	@echo "Building webservice image (no cache)..."
-	docker build --network=host --no-cache --tag webservice:latest -f engine/webservice.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --no-cache --tag webservice:latest -f environment/webservice.dockerfile engine/ --platform linux/amd64
 	@echo "✓ All images built successfully (no cache)"
 
 build-calliope:
 	@echo "Building calliope base image..."
-	docker build --network=host --tag calliope-base:latest -f engine/calliope.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --tag calliope-base:latest -f environment/calliope.dockerfile engine/ --platform linux/amd64
 
 build-webservice:
 	@echo "Building webservice image..."
-	docker build --network=host --tag webservice:latest -f engine/webservice.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --tag webservice:latest -f environment/webservice.dockerfile engine/ --platform linux/amd64
 
 #==============================================================================
 # RUN COMMANDS
@@ -68,7 +68,7 @@ build-webservice:
 up:
 	docker network create spatialhub-net 2>/dev/null || true
 	docker volume create sim_shared_data 2>/dev/null || true
-	docker compose -f docker-compose/docker-compose.unltd.yaml up -d
+	docker compose -f environment/docker-compose.unltd.yaml up -d
 	@sleep 2
 	docker network connect spatialhub-net sim-haproxy 2>/dev/null || true
 	@echo "✓ Simulation engine started"
@@ -78,7 +78,7 @@ up:
 up-min:
 	docker network create spatialhub-net 2>/dev/null || true
 	docker volume create sim_shared_data 2>/dev/null || true
-	docker compose -f docker-compose/docker-compose.unltd.dev.yaml up -d
+	docker compose -f environment/docker-compose.unltd.dev.yaml up -d
 	@sleep 2
 	docker network connect spatialhub-net sim-haproxy 2>/dev/null || true
 	@echo "✓ Simulation engine started"
@@ -86,30 +86,30 @@ up-min:
 	@echo "  Health Check:  http://localhost:8089/health"
 
 down:
-	docker compose -f docker-compose/docker-compose.unltd.yaml down
+	docker compose -f environment/docker-compose.unltd.yaml down
 
 restart:
-	docker compose -f docker-compose/docker-compose.unltd.yaml restart
+	docker compose -f environment/docker-compose.unltd.yaml restart
 
 logs:
-	docker compose -f docker-compose/docker-compose.unltd.yaml logs -f
+	docker compose -f environment/docker-compose.unltd.yaml logs -f
 
 #==============================================================================
 # INDIVIDUAL SERVICES
 #==============================================================================
 pv:
-	docker compose -f docker-compose/docker-compose.pv.yaml up -d
+	docker compose -f environment/docker-compose.pv.yaml up -d
 
 #==============================================================================
 # CLEANUP COMMANDS
 #==============================================================================
 stop:
 	@echo "Stopping running containers..."
-	docker compose -f docker-compose/docker-compose.unltd.yaml down
+	docker compose -f environment/docker-compose.unltd.yaml down
 
 clean:
 	@echo "Stopping and cleaning up all Docker resources..."
-	docker compose -f docker-compose/docker-compose.unltd.yaml down --rmi all
+	docker compose -f environment/docker-compose.unltd.yaml down --rmi all
 
 prune:
 	@echo "Removing unused Docker images and volumes..."
@@ -121,7 +121,7 @@ prune:
 #==============================================================================
 dev:
 	docker network create spatialhub-net 2>/dev/null || true
-	docker compose -f docker-compose/docker-compose.dev.yaml up -d
+	docker compose -f environment/docker-compose.dev.yaml up -d
 	@echo "✓ Development mode started with hot reload"
 
 generate-profiles:

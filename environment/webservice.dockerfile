@@ -1,27 +1,25 @@
 ###### README ->
 #
 # 0) (Only once/the first time) Download all required files for building the image
-# * cd engine/webservice/
 # * Put your data into the directory engine/webservice/data
 #
 # 1)
-# git rev-parse HEAD > webservice/git-commit-sha
+# git rev-parse HEAD > engine/webservice/git-commit-sha
 #
-# 2) Create image (takes some time)
-# cd into engine
-# sudo docker build --tag webservice -f webservice.dockerfile . --platform linux/amd64
+# 2) Create image (takes some time). Run from the repo root: the build
+#    context is engine/, the Dockerfile lives in environment/.
+# sudo docker build --tag webservice -f environment/webservice.dockerfile engine/ --platform linux/amd64
 #
-# 3) Create container from recently generated image run it...
-# @ tcf-dl1:
+# 3) Create container from recently generated image and run it...
 # sudo docker run -it \
 #                  --restart=always \
-#                  --name S6ET_Webservice \
+#                  --name webservice \
 #                  -p 192.168.80.100:8081:8081 \
 #                  webservice:latest
 #
 #
 ### For debug/dev purpose only:
-# sudo docker build --tag webservicebsp -f webservice.dockerfile .
+# sudo docker build --tag webservicebsp -f environment/webservice.dockerfile engine/
 # sudo docker create -it --name MyWebservicebspBash webservicebsp:latest bash
 # sudo docker start -a -i MyWebservicebspBash
 ###### <- README
