@@ -98,7 +98,7 @@ logs:
 # INDIVIDUAL SERVICES
 #==============================================================================
 pv:
-	docker compose -f environment/docker-compose.pv.yaml up -d
+	docker compose -f environment/renewables/docker-compose.pv.yaml up -d
 
 #==============================================================================
 # CLEANUP COMMANDS

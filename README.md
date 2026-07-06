@@ -26,14 +26,19 @@ The Docker Webservice is a key component of EnerPlanET, providing a containerize
 
 ```text
 simulation-engine/
-├── engine/               # Go simulation gateway (webservice/) + Calliope/PyPSA runner (calliope-runner/)
-│   ├── webservice/       # Go source: routes.go + one handler per service under simulations/
-│   └── calliope-runner/  # Calliope/PyPSA Python runner (formerly servicehub/)
-└── environment/          # All Docker setup: compose files, per-tech Dockerfiles, HAProxy config
+├── engine/                # Go simulation gateway (webservice/) + Calliope/PyPSA runner (calliope-runner/)
+│   ├── webservice/        # Go source: routes.go + one handler per service under simulations/
+│   └── calliope-runner/   # Calliope/PyPSA Python runner (formerly servicehub/)
+└── environment/           # All Docker setup, grouped by architecture-diagram namespace
     ├── docker-compose.*.yaml  # dev, unltd (single-instance), unltd.dev/unltd (multi-instance)
-    ├── haproxy/               # HAProxy configs for the multi-instance compose files
-    ├── calliope.dockerfile, webservice.dockerfile  # build against ../engine/ as context
-    └── pv.dockerfile, ignis.dockerfile, buem.dockerfile  # no local context needed; clone their own repo
+    ├── haproxy/                # HAProxy configs for the multi-instance compose files
+    ├── building-model/         # ignis.dockerfile, buem.dockerfile
+    ├── renewables/             # pv.dockerfile + its own docker-compose.pv.yaml
+    └── gateway/                # calliope.dockerfile, calliope_gurobi.dockerfile,
+                                 # webservice.dockerfile — the gateway/Orchestrator binary,
+                                 # still bundling Calliope (Optimiser) and PyPSA (Grid
+                                 # Simulator) execution in-process rather than as their
+                                 # own per-tech pairs
 ```
 
 Each per-tech Dockerfile under `environment/` clones its own public GitHub repo at build time — no access tokens required. The Go gateway (`engine/webservice`) hosts one handler per service (`simulations/*.go`), each implementing the same `Simulation` interface (`Path/Configure/Generate/Start/Show/Log/Finish`). A dedicated `Orchestrator` (`simulations/orchestrator.go`) sequences BuEM enrichment and PV dispatch ahead of the Calliope run — Calliope itself no longer reaches into other services directly.

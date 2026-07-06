@@ -7,7 +7,7 @@ services:
         platform: linux/amd64
         build:
             context: .
-            dockerfile: renewables/pv.dockerfile
+            dockerfile: pv.dockerfile
         restart: always
         ports:
             - 8092:8082/tcp
