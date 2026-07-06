@@ -1,5 +1,0 @@
-pandas
-numpy
-pypsa
-xarray
-netCDF4

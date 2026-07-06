@@ -1,5 +1,6 @@
 *.log
-webservice.docker/webservice/sims/
+engine/webservice/sims/
+engine/webservice/tmp/
 git-commit-sha
 gurobi.lic
 gitlab_token.txt

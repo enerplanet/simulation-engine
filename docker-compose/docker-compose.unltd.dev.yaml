@@ -1,4 +1,80 @@
 services:
+    # BuEM thermal building model service (ISO 52016-1 5R1C)
+    # Receives per-building GeoJSON from the sim worker and returns hourly
+    # heating/cooling profiles written to the sim_shared_data volume.
+    buem-service:
+        container_name: buem-api
+        build:
+            context: ../services/
+            dockerfile: buem.dockerfile
+        restart: unless-stopped
+        expose:
+            - "5000"
+        environment:
+            - PYTHONPATH=/buem/src
+            - BUEM_WEATHER_DIR=/buem/data/weather
+            - BUEM_RESULTS_DIR=/app/results
+            - BUEM_CBC_EXE=/opt/conda/envs/buem_env/bin/cbc
+            - GUNICORN_WORKERS=${BUEM_WORKERS:-2}
+        volumes:
+            - ${BUEM_WEATHER_DIR_HOST:-./data/buem-weather}:/buem/data/weather:ro
+            - sim_shared_data:/app/results
+        healthcheck:
+            test: ["CMD-SHELL", "curl -fsS http://localhost:5000/api/health || exit 1"]
+            interval: 30s
+            timeout: 10s
+            start_period: 60s
+            retries: 5
+        networks:
+            sim_network:
+                ipv4_address: 172.20.0.7
+            spatialhub-net:
+
+    # Postgres database backing the Ignis heat-demand service (TABULA archetypes).
+    ignis_db:
+        image: postgres:15
+        container_name: ignis-db
+        restart: unless-stopped
+        environment:
+            - POSTGRES_USER=${IGNIS_DB_USER:-postgres}
+            - POSTGRES_PASSWORD=${IGNIS_DB_PASSWORD:-postgres}
+            - POSTGRES_DB=${IGNIS_DB_NAME:-ignis}
+        volumes:
+            - ignis_db_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "${IGNIS_DB_USER:-postgres}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            sim_network:
+
+    # Ignis heat-demand service (ISO 13790, TABULA archetypes).
+    # Public repo, no access token required.
+    ignis-service:
+        container_name: ignis-api
+        build:
+            context: ../services/
+            dockerfile: ignis.dockerfile
+        restart: unless-stopped
+        depends_on:
+            - ignis_db
+        expose:
+            - "8090"
+        environment:
+            - APP_PORT=8090
+            - DB_HOST=ignis_db
+            - DB_PORT=5432
+            - DB_USER=${IGNIS_DB_USER:-postgres}
+            - DB_PASSWORD=${IGNIS_DB_PASSWORD:-postgres}
+            - DB_NAME=${IGNIS_DB_NAME:-ignis}
+            - DB_SSL_MODE=disable
+            - ALLOWED_ORIGINS=${IGNIS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
+        networks:
+            sim_network:
+                ipv4_address: 172.20.0.8
+            spatialhub-net:
+
     # HAProxy Load Balancer for simulation engine
     sim_haproxy:
         image: haproxy:2.9-alpine
@@ -25,7 +101,7 @@ services:
             - sim_shared_data:/webservice/data
         platform: linux/amd64
         build:
-            context: ../webservice.docker/
+            context: ../engine/
             dockerfile: webservice.dockerfile
         restart: always
         expose:
@@ -41,12 +117,12 @@ services:
             - MAX_CONCURRENT_SIMS=5
             - PV_SERVICE_HOST=172.20.0.3
             - PV_SERVICE_PORT=8082
-            - WIND_SERVICE_HOST=172.20.0.4
-            - WIND_SERVICE_PORT=8083
-            - BIOMASS_SERVICE_HOST=172.20.0.5
-            - BIOMASS_SERVICE_PORT=8084
-            - GEOTHERMAL_SERVICE_HOST=172.20.0.6
-            - GEOTHERMAL_SERVICE_PORT=8087
+            - BUEM_SERVICE_HOST=172.20.0.7
+            - BUEM_SERVICE_PORT=5000
+            - BUEM_DATA_DIR=/webservice/data/buem
+            - BUEM_RESULTS_DIR=/webservice/data
+            - IGNIS_SERVICE_HOST=172.20.0.8
+            - IGNIS_SERVICE_PORT=8090
             - CALLBACK_HOST=host.docker.internal
             - CALLBACK_PORT=3001
         deploy:
@@ -70,7 +146,7 @@ services:
             - sim_shared_data:/webservice/data
         platform: linux/amd64
         build:
-            context: ../webservice.docker/
+            context: ../engine/
             dockerfile: webservice.dockerfile
         restart: always
         expose:
@@ -86,12 +162,12 @@ services:
             - MAX_CONCURRENT_SIMS=5
             - PV_SERVICE_HOST=172.20.0.3
             - PV_SERVICE_PORT=8082
-            - WIND_SERVICE_HOST=172.20.0.4
-            - WIND_SERVICE_PORT=8083
-            - BIOMASS_SERVICE_HOST=172.20.0.5
-            - BIOMASS_SERVICE_PORT=8084
-            - GEOTHERMAL_SERVICE_HOST=172.20.0.6
-            - GEOTHERMAL_SERVICE_PORT=8087
+            - BUEM_SERVICE_HOST=172.20.0.7
+            - BUEM_SERVICE_PORT=5000
+            - BUEM_DATA_DIR=/webservice/data/buem
+            - BUEM_RESULTS_DIR=/webservice/data
+            - IGNIS_SERVICE_HOST=172.20.0.8
+            - IGNIS_SERVICE_PORT=8090
             - CALLBACK_HOST=host.docker.internal
             - CALLBACK_PORT=3001
         deploy:
@@ -110,6 +186,7 @@ services:
 volumes:
   sim_shared_data:
     external: true
+  ignis_db_data:
 
 networks:
     sim_network:

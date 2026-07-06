@@ -9,10 +9,10 @@ services:
         volumes:
             - techs_sim_data:/webservice/data
             # Mount source for hot reload
-            - ../webservice.docker/servicehub:/webservice:ro
+            - ../engine/calliope-runner:/webservice:ro
         platform: linux/amd64
         build:
-            context: ../webservice.docker/
+            context: ../engine/
             dockerfile: webservice.dockerfile
         restart: unless-stopped
         ports:
@@ -27,12 +27,12 @@ services:
             - RETRY_BASE_DELAY=1000
             - PV_SERVICE_HOST=172.20.0.3
             - PV_SERVICE_PORT=8082
-            - WIND_SERVICE_HOST=172.20.0.4
-            - WIND_SERVICE_PORT=8083
-            - BIOMASS_SERVICE_HOST=172.20.0.5
-            - BIOMASS_SERVICE_PORT=8084
-            - GEOTHERMAL_SERVICE_HOST=172.20.0.6
-            - GEOTHERMAL_SERVICE_PORT=8087
+            - BUEM_SERVICE_HOST=172.20.0.7
+            - BUEM_SERVICE_PORT=5000
+            - BUEM_DATA_DIR=/webservice/data/buem
+            - BUEM_RESULTS_DIR=/webservice/data
+            - IGNIS_SERVICE_HOST=172.20.0.8
+            - IGNIS_SERVICE_PORT=8090
             - CALLBACK_HOST=host.docker.internal
             - CALLBACK_PORT=3001
             - MAX_CONCURRENT_SIMS=10
@@ -44,11 +44,11 @@ services:
             watch:
                 # Rebuild on Go source changes
                 - action: rebuild
-                  path: ../webservice.docker/webservice
+                  path: ../engine/webservice
                   target: /tmp/webservice
                 # Sync Python/config changes without rebuild
                 - action: sync+restart
-                  path: ../webservice.docker/servicehub
+                  path: ../engine/calliope-runner
                   target: /webservice
                   ignore:
                     - "**/__pycache__"

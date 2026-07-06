@@ -14,7 +14,29 @@ The Docker Webservice is a key component of EnerPlanET, providing a containerize
 
 - **PyPSA**: Python for Power System Analysis (PyPSA) is an open-source toolbox for simulating and optimizing modern electrical power systems. It allows EnerPlanET to model and analyze power flow, load balancing, and other critical aspects of energy networks.
 
+- **Ignis**: Heat-demand estimation service (ISO 13790, TABULA archetypes) — [THD-Spatial-AI/ignis](https://github.com/THD-Spatial-AI/ignis).
+
+- **BuEM**: Thermal building model service (ISO 52016-1 5R1C) producing hourly heating/cooling profiles — [THD-Spatial-AI/buem](https://github.com/THD-Spatial-AI/buem).
+
+- **PV**: Photovoltaic yield simulation — [THD-Spatial-AI/pysam-photovoltaic-energy-simulation](https://github.com/THD-Spatial-AI/pysam-photovoltaic-energy-simulation).
+
 - **Docker**: The simulations are executed within Docker containers, which encapsulate all necessary software, libraries, and configurations. This ensures that the simulations run in a consistent environment, regardless of the underlying system.
+
+## Repository Layout
+
+```text
+simulation-engine/
+├── engine/               # Go simulation gateway (webservice/) + Calliope/PyPSA runner (calliope-runner/)
+│   ├── webservice/       # Go source: routes.go + one handler per service under simulations/
+│   ├── calliope-runner/  # Calliope/PyPSA Python runner (formerly servicehub/)
+│   └── *.dockerfile
+├── services/             # Per-tech service Dockerfiles (formerly techs/) — ignis, buem, pv
+└── docker-compose/       # Compose files: dev, unltd (single-instance), unltd.dev/unltd (multi-instance)
+```
+
+Each `<tech>.dockerfile` under `services/` clones its own public GitHub repo at build time — no access tokens required. The Go gateway (`engine/webservice`) hosts one handler per service (`simulations/*.go`), each implementing the same `Simulation` interface (`Path/Configure/Generate/Start/Show/Log/Finish`). A dedicated `Orchestrator` (`simulations/orchestrator.go`) sequences BuEM enrichment and PV dispatch ahead of the Calliope run — Calliope itself no longer reaches into other services directly.
+
+`wind`, `biomass`, and `geothermal` techs have been removed from this repo, matching the current target architecture (pv/calliope/pypsa/ignis/buem only).
 
 ## JSON Structure and Workflow
 
@@ -45,7 +67,7 @@ The topology section defines the energy infrastructure, including nodes and conn
 
 **Example**: 
 
-- **`wind_supply`**: Represents a wind energy source with various constraints and costs, such as `cont_energy_cap_max` (maximum energy capacity) and `cost_energy_cap` (capital cost per unit of energy).
+- **`pv_supply`**: Represents a photovoltaic energy source with various constraints and costs, such as `cont_energy_cap_max` (maximum energy capacity) and `cost_energy_cap` (capital cost per unit of energy).
 
 ### 5. PyPSA Configuration
 
@@ -73,4 +95,4 @@ EnerPlanET, supported by the Docker Webservice, provides a robust platform for c
 
 ### Detail Documentation
 
-For Installation Instruction, please visit the project [wiki](https://mygit.th-deg.de/tcf_s6et/docker_webservice/-/wikis/home).
+Installation instructions previously lived on the old GitLab repo's wiki (`docker_webservice`) — that link is stale now that this project has moved to GitHub. See the `Makefile` (`make help`) for current build/run commands until a replacement is written.

@@ -1,7 +1,7 @@
 # Makefile for EnerplanET Simulation Engine
 # Attention use !!! TABS !!! not !!! SPACES !!!
 
-.PHONY: all help build build-nocache build-calliope build-webservice up down restart logs clean stop prune pv wind geothermal biomass
+.PHONY: all help build build-nocache build-calliope build-webservice up down restart logs clean stop prune pv
 
 # Default target
 all: help
@@ -30,9 +30,6 @@ help:
 	@echo ""
 	@echo "INDIVIDUAL SERVICES:"
 	@echo "  make pv                 Start photovoltaic simulation service"
-	@echo "  make wind               Start wind onshore simulation service"
-	@echo "  make geothermal         Start geothermal simulation service"
-	@echo "  make biomass            Start biomass simulation service"
 	@echo ""
 	@echo "CLEANUP COMMANDS:"
 	@echo "  make stop               Stop containers without removing images"
@@ -52,18 +49,18 @@ build: build-calliope build-webservice
 
 build-nocache:
 	@echo "Building calliope base image (no cache)..."
-	docker build --network=host --no-cache --tag s6et_calliope:latest -f webservice.docker/calliope.dockerfile webservice.docker/ --platform linux/amd64
+	docker build --network=host --no-cache --tag s6et_calliope:latest -f engine/calliope.dockerfile engine/ --platform linux/amd64
 	@echo "Building webservice image (no cache)..."
-	docker build --network=host --no-cache --tag s6et_webservice:latest -f webservice.docker/webservice.dockerfile webservice.docker/ --platform linux/amd64
+	docker build --network=host --no-cache --tag s6et_webservice:latest -f engine/webservice.dockerfile engine/ --platform linux/amd64
 	@echo "✓ All images built successfully (no cache)"
 
 build-calliope:
 	@echo "Building calliope base image..."
-	docker build --network=host --tag s6et_calliope:latest -f webservice.docker/calliope.dockerfile webservice.docker/ --platform linux/amd64
+	docker build --network=host --tag s6et_calliope:latest -f engine/calliope.dockerfile engine/ --platform linux/amd64
 
 build-webservice:
 	@echo "Building webservice image..."
-	docker build --network=host --tag s6et_webservice:latest -f webservice.docker/webservice.dockerfile webservice.docker/ --platform linux/amd64
+	docker build --network=host --tag s6et_webservice:latest -f engine/webservice.dockerfile engine/ --platform linux/amd64
 
 #==============================================================================
 # RUN COMMANDS
@@ -101,16 +98,7 @@ logs:
 # INDIVIDUAL SERVICES
 #==============================================================================
 pv:
-	docker compose -f docker-compose/docker-compose.photovoltaik.yaml up -d
-
-wind:
-	docker compose -f docker-compose/docker-compose.wind_onshore.yaml up -d
-
-geothermal:
-	docker compose -f docker-compose/docker-compose.geothermal.yaml up -d
-
-biomass:
-	docker compose -f docker-compose/docker-compose.biomass.yaml up -d
+	docker compose -f docker-compose/docker-compose.pv.yaml up -d
 
 #==============================================================================
 # CLEANUP COMMANDS
@@ -139,4 +127,4 @@ dev:
 generate-profiles:
 	@echo "Generating SLP demand profiles..."
 	python generate_slp_profiles.py
-	@echo "✓ Profiles generated in webservice.docker/servicehub/data_new/"
+	@echo "✓ Profiles generated in engine/calliope-runner/data/"
