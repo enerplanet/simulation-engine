@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
 	models "webservice/models/charging"
-	"webservice/validator"
 	"webservice/utils"
+	"webservice/validator"
 )
 
 // Calliope YAMLbyte
@@ -133,7 +133,7 @@ func (c Charging) Generate() http.HandlerFunc {
 func (c Charging) Start() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 
 		if err != nil {
 			utils.Log(err)

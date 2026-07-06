@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -115,7 +115,7 @@ func (p *PyPSA) Generate() http.HandlerFunc {
 func (p *PyPSA) Start() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 
 		if err != nil {
 			utils.Log(err)
@@ -206,7 +206,7 @@ func (p *PyPSA) Log() http.HandlerFunc {
 func (p *PyPSA) Finish() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 
 		if err != nil {
 			utils.Log(err)

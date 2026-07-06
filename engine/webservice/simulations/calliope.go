@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math"
 	"net/http"
@@ -155,7 +155,7 @@ func (c *Calliope) Start() http.HandlerFunc {
 			}
 		}()
 
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 
 		if err != nil {
 			utils.Log(err)
@@ -879,7 +879,7 @@ func (c *Calliope) Log() http.HandlerFunc {
 func (c *Calliope) Finish() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 
 		if err != nil {
 			utils.Log(err)

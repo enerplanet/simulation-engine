@@ -6,7 +6,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -107,7 +106,7 @@ func ReadFile(name string) (string, error) {
 		return "", err
 	}
 
-	content, err := ioutil.ReadFile(name)
+	content, err := os.ReadFile(name)
 	if err != nil {
 		return "", err
 	}

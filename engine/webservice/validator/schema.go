@@ -2,7 +2,7 @@ package validator
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/xeipuuv/gojsonschema"
@@ -29,7 +29,7 @@ func loadJSONSchema(path string) (string, error) {
 	}
 	defer file.Close()
 
-	byteValue, err := ioutil.ReadAll(file)
+	byteValue, err := io.ReadAll(file)
 	if err != nil {
 		return "", err
 	}

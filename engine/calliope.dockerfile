@@ -4,10 +4,18 @@ FROM python:3.11-bookworm
 # Set noninteractive mode for apt-get to suppress prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update and install required packages
+# Update and install required packages.
+# Go is installed from the official tarball, not the Debian "golang-go" apt
+# package: bookworm's apt repo is pinned to Go 1.19, far behind current Go.
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y coinor-cbc coinor-libcbc-dev make golang-go git curl && \
+    apt-get install -y coinor-cbc coinor-libcbc-dev make git curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ARG GO_VERSION=1.26.4
+RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz && \
+    tar -C /usr/local -xzf /tmp/go.tar.gz && \
+    rm /tmp/go.tar.gz
+ENV PATH="/usr/local/go/bin:${PATH}"
 
 # set temp directory
 WORKDIR /tmp

@@ -3,7 +3,7 @@ package simulations
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	pathIgnis       = "/ignis"
-	logFileIgnis    = "ignis.log"
-	ignisAPICalc    = "/api/v1/calculate"
-	ignisMaxConc    = 8 // Ignis is pure in-memory arithmetic — no I/O bound
+	pathIgnis    = "/ignis"
+	logFileIgnis = "ignis.log"
+	ignisAPICalc = "/api/v1/calculate"
+	ignisMaxConc = 8 // Ignis is pure in-memory arithmetic — no I/O bound
 )
 
 var (
@@ -83,7 +83,7 @@ func (h *Ignis) Generate() http.HandlerFunc {
 // properties.ignis.q_h_nd for each processed node.
 func (h *Ignis) Start() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			utils.Log(err)
 			http.Error(w, readBodyErrMsg, http.StatusBadRequest)
@@ -196,7 +196,7 @@ func ignisNodeToTask(rawNode json.RawMessage) (ignisTask, bool) {
 		ID         string `json:"id"`
 		Properties struct {
 			FeatureType string `json:"feature_type"`
-			Ignis        struct {
+			Ignis       struct {
 				VariantCode string   `json:"variant_code"`
 				ARef        *float64 `json:"A_ref"`
 			} `json:"ignis"`
