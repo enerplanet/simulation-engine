@@ -363,7 +363,6 @@ func runBUEMFeature(task buemTask) (json.RawMessage, buemRunMetrics, error) {
 	wallStart := time.Now()
 	singleFC := buem.FeatureCollection{
 		Type:     "FeatureCollection",
-		ModelID:  task.modelID,
 		Features: []json.RawMessage{task.rawFeature},
 	}
 

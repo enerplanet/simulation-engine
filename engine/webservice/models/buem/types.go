@@ -10,11 +10,11 @@ const BuEMAPIVersion = "v3"
 
 // FeatureCollection is the GeoJSON request body sent to BuEM.
 // Features are kept as raw JSON so the buem block is forwarded unchanged.
-// ModelID is the EnerPlanET model identifier — forwarded so BuEM can log or
-// correlate it. The gateway also uses it to isolate CSV output per model.
+// BuEM's GeoJsonRequestSchema doesn't declare a model_id field and rejects
+// unknown fields, so it isn't sent here — the gateway still uses the model
+// ID locally (buemTask.modelID) to isolate CSV output per model.
 type FeatureCollection struct {
 	Type     string            `json:"type"`
-	ModelID  string            `json:"model_id,omitempty"`
 	Features []json.RawMessage `json:"features"`
 }
 
