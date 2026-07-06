@@ -49,18 +49,18 @@ build: build-calliope build-webservice
 
 build-nocache:
 	@echo "Building calliope base image (no cache)..."
-	docker build --network=host --no-cache --tag s6et_calliope:latest -f engine/calliope.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --no-cache --tag calliope-base:latest -f engine/calliope.dockerfile engine/ --platform linux/amd64
 	@echo "Building webservice image (no cache)..."
-	docker build --network=host --no-cache --tag s6et_webservice:latest -f engine/webservice.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --no-cache --tag webservice:latest -f engine/webservice.dockerfile engine/ --platform linux/amd64
 	@echo "✓ All images built successfully (no cache)"
 
 build-calliope:
 	@echo "Building calliope base image..."
-	docker build --network=host --tag s6et_calliope:latest -f engine/calliope.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --tag calliope-base:latest -f engine/calliope.dockerfile engine/ --platform linux/amd64
 
 build-webservice:
 	@echo "Building webservice image..."
-	docker build --network=host --tag s6et_webservice:latest -f engine/webservice.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --tag webservice:latest -f engine/webservice.dockerfile engine/ --platform linux/amd64
 
 #==============================================================================
 # RUN COMMANDS

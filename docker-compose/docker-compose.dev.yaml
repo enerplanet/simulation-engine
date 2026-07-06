@@ -3,9 +3,9 @@
 
 services:
     # Single instance for development with hot reload
-    s6et_webservice:
-        image: s6et_webservice:dev
-        container_name: s6et-webservice-dev
+    webservice:
+        image: webservice:dev
+        container_name: webservice-dev
         volumes:
             - techs_sim_data:/webservice/data
             # Mount source for hot reload

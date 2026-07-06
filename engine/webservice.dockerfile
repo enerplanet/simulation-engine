@@ -9,7 +9,7 @@
 #
 # 2) Create image (takes some time)
 # cd into engine
-# sudo docker build --tag s6et_webservice -f webservice.dockerfile . --platform linux/amd64
+# sudo docker build --tag webservice -f webservice.dockerfile . --platform linux/amd64
 #
 # 3) Create container from recently generated image run it...
 # @ tcf-dl1:
@@ -17,7 +17,7 @@
 #                  --restart=always \
 #                  --name S6ET_Webservice \
 #                  -p 192.168.80.100:8081:8081 \
-#                  s6et_webservice:latest
+#                  webservice:latest
 #
 #
 ### For debug/dev purpose only:
@@ -28,7 +28,7 @@
 
 
 # Set the base image on which you want to build up your image/application
-FROM s6et_calliope:latest
+FROM calliope-base:latest
 
 # Webservice
 ADD calliope-runner /webservice/

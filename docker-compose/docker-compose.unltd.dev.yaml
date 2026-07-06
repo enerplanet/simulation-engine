@@ -85,8 +85,8 @@ services:
         volumes:
             - ./haproxy/haproxy.dev.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
         depends_on:
-            - s6et_webservice_1
-            - s6et_webservice_2
+            - webservice_1
+            - webservice_2
         networks:
             sim_network:
                 ipv4_address: 172.20.0.10
@@ -94,9 +94,9 @@ services:
         restart: always
 
     # Simulation engine instance 1
-    s6et_webservice_1:
-        image: s6et_webservice
-        container_name: s6et-webservice-1
+    webservice_1:
+        image: webservice
+        container_name: webservice-1
         volumes:
             - sim_shared_data:/webservice/data
         platform: linux/amd64
@@ -139,9 +139,9 @@ services:
             spatialhub-net:
 
     # Simulation engine instance 2
-    s6et_webservice_2:
-        image: s6et_webservice
-        container_name: s6et-webservice-2
+    webservice_2:
+        image: webservice
+        container_name: webservice-2
         volumes:
             - sim_shared_data:/webservice/data
         platform: linux/amd64

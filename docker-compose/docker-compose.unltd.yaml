@@ -85,11 +85,11 @@ services:
         volumes:
             - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
         depends_on:
-            - s6et_webservice_1
-            - s6et_webservice_2
-            - s6et_webservice_3
-            - s6et_webservice_4
-            - s6et_webservice_5
+            - webservice_1
+            - webservice_2
+            - webservice_3
+            - webservice_4
+            - webservice_5
         networks:
             sim_network:
                 ipv4_address: 172.20.0.10
@@ -97,9 +97,9 @@ services:
         restart: always
 
     # Simulation engine instance 1
-    s6et_webservice_1:
-        image: s6et_webservice
-        container_name: s6et-webservice-1
+    webservice_1:
+        image: webservice
+        container_name: webservice-1
         volumes:
             - sim_shared_data:/webservice/data
         platform: linux/amd64
@@ -142,9 +142,9 @@ services:
             spatialhub-net:
 
     # Simulation engine instance 2
-    s6et_webservice_2:
-        image: s6et_webservice
-        container_name: s6et-webservice-2
+    webservice_2:
+        image: webservice
+        container_name: webservice-2
         volumes:
             - sim_shared_data:/webservice/data
         platform: linux/amd64
@@ -187,9 +187,9 @@ services:
             spatialhub-net:
 
     # Simulation engine instance 3
-    s6et_webservice_3:
-        image: s6et_webservice
-        container_name: s6et-webservice-3
+    webservice_3:
+        image: webservice
+        container_name: webservice-3
         volumes:
             - sim_shared_data:/webservice/data
         platform: linux/amd64
@@ -232,9 +232,9 @@ services:
             spatialhub-net:
 
     # Simulation engine instance 4
-    s6et_webservice_4:
-        image: s6et_webservice
-        container_name: s6et-webservice-4
+    webservice_4:
+        image: webservice
+        container_name: webservice-4
         volumes:
             - sim_shared_data:/webservice/data
         platform: linux/amd64
@@ -277,9 +277,9 @@ services:
             spatialhub-net:
 
     # Simulation engine instance 5
-    s6et_webservice_5:
-        image: s6et_webservice
-        container_name: s6et-webservice-5
+    webservice_5:
+        image: webservice
+        container_name: webservice-5
         volumes:
             - sim_shared_data:/webservice/data
         platform: linux/amd64
