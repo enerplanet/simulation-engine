@@ -49,38 +49,38 @@ build: build-calliope build-webservice
 
 build-nocache:
 	@echo "Building calliope base image (no cache)..."
-	docker build --network=host --no-cache --tag calliope-base:latest -f environment/calliope.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --no-cache --tag calliope-base:latest -f environment/gateway/calliope.dockerfile engine/ --platform linux/amd64
 	@echo "Building webservice image (no cache)..."
-	docker build --network=host --no-cache --tag webservice:latest -f environment/webservice.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --no-cache --tag webservice:latest -f environment/gateway/webservice.dockerfile engine/ --platform linux/amd64
 	@echo "✓ All images built successfully (no cache)"
 
 build-calliope:
 	@echo "Building calliope base image..."
-	docker build --network=host --tag calliope-base:latest -f environment/calliope.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --tag calliope-base:latest -f environment/gateway/calliope.dockerfile engine/ --platform linux/amd64
 
 build-webservice:
 	@echo "Building webservice image..."
-	docker build --network=host --tag webservice:latest -f environment/webservice.dockerfile engine/ --platform linux/amd64
+	docker build --network=host --tag webservice:latest -f environment/gateway/webservice.dockerfile engine/ --platform linux/amd64
 
 #==============================================================================
 # RUN COMMANDS
 #==============================================================================
 up:
 	docker network create spatialhub-net 2>/dev/null || true
-	docker volume create sim_shared_data 2>/dev/null || true
+	docker volume create enerplanet_sim_shared_data 2>/dev/null || true
 	docker compose -f environment/docker-compose.unltd.yaml up -d
 	@sleep 2
-	docker network connect spatialhub-net sim-haproxy 2>/dev/null || true
+	docker network connect spatialhub-net enerplanet-sim-haproxy 2>/dev/null || true
 	@echo "✓ Simulation engine started"
 	@echo "  HAProxy Stats: http://localhost:8405/stats"
 	@echo "  Health Check:  http://localhost:8089/health"
 
 up-min:
 	docker network create spatialhub-net 2>/dev/null || true
-	docker volume create sim_shared_data 2>/dev/null || true
+	docker volume create enerplanet_sim_shared_data 2>/dev/null || true
 	docker compose -f environment/docker-compose.unltd.dev.yaml up -d
 	@sleep 2
-	docker network connect spatialhub-net sim-haproxy 2>/dev/null || true
+	docker network connect spatialhub-net enerplanet-sim-haproxy 2>/dev/null || true
 	@echo "✓ Simulation engine started"
 	@echo "  HAProxy Stats: http://localhost:8405/stats"
 	@echo "  Health Check:  http://localhost:8089/health"

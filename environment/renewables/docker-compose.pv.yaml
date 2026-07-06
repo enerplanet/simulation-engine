@@ -1,9 +1,10 @@
 services:
-    pv_simulation_EnerplanET:
+    pv-service:
         image: pv-nrel-pysam:latest
+        container_name: enerplanet-pv
         volumes:
-            - sim_shared_data:/webservice/data
-            - sim_shared_data:/pv_simulation/output_data
+            - enerplanet_sim_shared_data:/webservice/data
+            - enerplanet_sim_shared_data:/pv_simulation/output_data
         platform: linux/amd64
         build:
             context: .
@@ -15,15 +16,15 @@ services:
             - GUNICORN_WORKERS=${PV_WORKERS:-15}
             - GUNICORN_TIMEOUT=0
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.3
 
 volumes:
-  sim_shared_data:
+  enerplanet_sim_shared_data:
     external: true
 
 networks:
-    sim_network:
+    enerplanet_sim_network:
         driver: bridge
         ipam:
             driver: default

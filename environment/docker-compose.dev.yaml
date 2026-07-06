@@ -5,7 +5,7 @@ services:
     # Single instance for development with hot reload
     webservice:
         image: webservice:dev
-        container_name: webservice-dev
+        container_name: enerplanet-webservice-dev
         volumes:
             - techs_sim_data:/webservice/data
             # Mount source for hot reload
@@ -37,7 +37,7 @@ services:
             - CALLBACK_PORT=3001
             - MAX_CONCURRENT_SIMS=10
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.21
             spatialhub-net:
         develop:
@@ -58,7 +58,7 @@ volumes:
     techs_sim_data:
 
 networks:
-    sim_network:
+    enerplanet_sim_network:
         driver: bridge
         ipam:
             driver: default

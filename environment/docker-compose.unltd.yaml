@@ -1,9 +1,9 @@
 services:
     # BuEM thermal building model service (ISO 52016-1 5R1C)
     # Receives per-building GeoJSON from the sim worker and returns hourly
-    # heating/cooling profiles written to the sim_shared_data volume.
+    # heating/cooling profiles written to the enerplanet_sim_shared_data volume.
     buem-service:
-        container_name: buem-api
+        container_name: enerplanet-buem-api
         build:
             context: .
             dockerfile: building-model/buem.dockerfile
@@ -18,7 +18,7 @@ services:
             - GUNICORN_WORKERS=${BUEM_WORKERS:-4}
         volumes:
             - ${BUEM_WEATHER_DIR_HOST:-./data/buem-weather}:/buem/data/weather:ro
-            - sim_shared_data:/app/results
+            - enerplanet_sim_shared_data:/app/results
         healthcheck:
             test: ["CMD-SHELL", "curl -fsS http://localhost:5000/api/health || exit 1"]
             interval: 30s
@@ -26,33 +26,33 @@ services:
             start_period: 60s
             retries: 5
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.7
             spatialhub-net:
 
     # Postgres database backing the Ignis heat-demand service (TABULA archetypes).
     ignis_db:
         image: postgres:15
-        container_name: ignis-db
+        container_name: enerplanet-ignis-db
         restart: unless-stopped
         environment:
             - POSTGRES_USER=${IGNIS_DB_USER:-postgres}
             - POSTGRES_PASSWORD=${IGNIS_DB_PASSWORD:-postgres}
             - POSTGRES_DB=${IGNIS_DB_NAME:-ignis}
         volumes:
-            - ignis_db_data:/var/lib/postgresql/data
+            - enerplanet_ignis_db_data:/var/lib/postgresql/data
         healthcheck:
             test: ["CMD", "pg_isready", "-U", "${IGNIS_DB_USER:-postgres}"]
             interval: 10s
             timeout: 5s
             retries: 5
         networks:
-            sim_network:
+            enerplanet_sim_network:
 
     # Ignis heat-demand service (ISO 13790, TABULA archetypes).
     # Public repo, no access token required.
     ignis-service:
-        container_name: ignis-api
+        container_name: enerplanet-ignis-api
         build:
             context: .
             dockerfile: building-model/ignis.dockerfile
@@ -71,14 +71,14 @@ services:
             - DB_SSL_MODE=disable
             - ALLOWED_ORIGINS=${IGNIS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.8
             spatialhub-net:
 
     # HAProxy Load Balancer for simulation engine
     sim_haproxy:
         image: haproxy:2.9-alpine
-        container_name: sim-haproxy
+        container_name: enerplanet-sim-haproxy
         ports:
             - 8089:8089/tcp
             - 8405:8405/tcp  # Stats dashboard
@@ -91,7 +91,7 @@ services:
             - webservice_4
             - webservice_5
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.10
             spatialhub-net:
         restart: always
@@ -99,9 +99,9 @@ services:
     # Simulation engine instance 1
     webservice_1:
         image: webservice
-        container_name: webservice-1
+        container_name: enerplanet-webservice-1
         volumes:
-            - sim_shared_data:/webservice/data
+            - enerplanet_sim_shared_data:/webservice/data
         platform: linux/amd64
         build:
             context: ../engine/
@@ -137,16 +137,16 @@ services:
                     cpus: '4'
                     memory: 8G
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.21
             spatialhub-net:
 
     # Simulation engine instance 2
     webservice_2:
         image: webservice
-        container_name: webservice-2
+        container_name: enerplanet-webservice-2
         volumes:
-            - sim_shared_data:/webservice/data
+            - enerplanet_sim_shared_data:/webservice/data
         platform: linux/amd64
         build:
             context: ../engine/
@@ -182,16 +182,16 @@ services:
                     cpus: '4'
                     memory: 8G
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.22
             spatialhub-net:
 
     # Simulation engine instance 3
     webservice_3:
         image: webservice
-        container_name: webservice-3
+        container_name: enerplanet-webservice-3
         volumes:
-            - sim_shared_data:/webservice/data
+            - enerplanet_sim_shared_data:/webservice/data
         platform: linux/amd64
         build:
             context: ../engine/
@@ -227,16 +227,16 @@ services:
                     cpus: '4'
                     memory: 8G
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.23
             spatialhub-net:
 
     # Simulation engine instance 4
     webservice_4:
         image: webservice
-        container_name: webservice-4
+        container_name: enerplanet-webservice-4
         volumes:
-            - sim_shared_data:/webservice/data
+            - enerplanet_sim_shared_data:/webservice/data
         platform: linux/amd64
         build:
             context: ../engine/
@@ -272,16 +272,16 @@ services:
                     cpus: '4'
                     memory: 8G
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.24
             spatialhub-net:
 
     # Simulation engine instance 5
     webservice_5:
         image: webservice
-        container_name: webservice-5
+        container_name: enerplanet-webservice-5
         volumes:
-            - sim_shared_data:/webservice/data
+            - enerplanet_sim_shared_data:/webservice/data
         platform: linux/amd64
         build:
             context: ../engine/
@@ -317,17 +317,17 @@ services:
                     cpus: '4'
                     memory: 8G
         networks:
-            sim_network:
+            enerplanet_sim_network:
                 ipv4_address: 172.20.0.25
             spatialhub-net:
 
 volumes:
-  sim_shared_data:
+  enerplanet_sim_shared_data:
     external: true
-  ignis_db_data:
+  enerplanet_ignis_db_data:
 
 networks:
-    sim_network:
+    enerplanet_sim_network:
         driver: bridge
         ipam:
             driver: default
