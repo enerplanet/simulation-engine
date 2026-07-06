@@ -1,19 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"webservice/config"
 	"webservice/utils"
 
 	"github.com/subosito/gotenv"
 )
 
-var config utils.Config
-
 func init() {
 	gotenv.Load()
-	config.Load()
 
 	// Initialize column mapper with demand CSV files
 	log.Println("Initializing column mapper for demand CSV files...")
@@ -23,6 +20,7 @@ func init() {
 }
 
 func main() {
-	fmt.Println(config)
-	log.Fatal(http.ListenAndServe(config.Address(), getRouter()))
+	cfg := config.GetConfig()
+	log.Printf("Starting webservice on %s", cfg.ServerAddr())
+	log.Fatal(http.ListenAndServe(cfg.ServerAddr(), getRouter()))
 }
