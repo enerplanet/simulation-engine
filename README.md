@@ -16,7 +16,7 @@ The Docker Webservice is a key component of EnerPlanET, providing a containerize
 
 - **Ignis**: Heat-demand estimation service (ISO 13790, TABULA archetypes) — [THD-Spatial-AI/ignis](https://github.com/THD-Spatial-AI/ignis).
 
-- **BuEM**: Thermal building model service (ISO 52016-1 5R1C) producing hourly heating/cooling profiles — [enerplanet/buem](https://github.com/enerplanet/buem).
+- **BuEM**: Thermal building model service (5R1C) producing hourly heating/cooling profiles. Developed at Utrecht University (MIT licence) — upstream [UU-BUEM/buem](https://github.com/UU-BUEM/buem); we deploy the fork [enerplanet/buem](https://github.com/enerplanet/buem). See [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
 
 - **PV**: Photovoltaic yield simulation — [THD-Spatial-AI/pysam-photovoltaic-energy-simulation](https://github.com/THD-Spatial-AI/pysam-photovoltaic-energy-simulation).
 

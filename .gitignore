@@ -1,4 +1,5 @@
 *.log
+site/
 engine/webservice/sims/
 engine/webservice/tmp/
 git-commit-sha

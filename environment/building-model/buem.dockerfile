@@ -4,9 +4,12 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl coinor-cbc \
     && rm -rf /var/lib/apt/lists/*
 
+# BuEM is developed at Utrecht University (author: Somadutta Sahoo, MIT licence).
+# Upstream: https://github.com/UU-BUEM/buem  —  see ATTRIBUTIONS.md.
+# We build a fork that only fixes container packaging; the model is unchanged.
 # Public repo — no access token required.
 WORKDIR /
-RUN git clone --branch fix/occupancy-package-imports https://github.com/enerplanet/buem.git
+RUN git clone --branch main https://github.com/enerplanet/buem.git
 
 WORKDIR /buem
 RUN conda env create -f environment_docker.yml && conda clean -afy
