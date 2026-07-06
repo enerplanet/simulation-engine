@@ -6,7 +6,7 @@ RUN apt-get update \
 
 # Public repo — no access token required.
 WORKDIR /
-RUN git clone --branch fix/occupancy-package-imports https://github.com/THD-Spatial-AI/buem.git
+RUN git clone --branch fix/occupancy-package-imports https://github.com/enerplanet/buem.git
 
 WORKDIR /buem
 RUN conda env create -f environment_docker.yml && conda clean -afy
