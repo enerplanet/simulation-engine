@@ -6,7 +6,7 @@ RUN apt-get update \
 
 # BuEM is developed at Utrecht University (author: Somadutta Sahoo, MIT licence).
 # Upstream: https://github.com/UU-BUEM/buem  —  see ATTRIBUTIONS.md.
-# We build a fork that only fixes container packaging; the model is unchanged.
+# We build a fork that only fixes container packaging and API; the model is unchanged.
 # Public repo — no access token required.
 WORKDIR /
 RUN git clone --branch main https://github.com/enerplanet/buem.git
