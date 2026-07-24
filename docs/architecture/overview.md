@@ -7,19 +7,27 @@ repeat them.
 
 ## Components
 
-| Component | Container name | Role | Published to host |
-| --- | --- | --- | --- |
-| HAProxy gateway | `enerplanet-sim-haproxy` | Single entry point, load-balances the webservice replicas | `8089` (API), `8405` (stats) |
-| Webservice | `enerplanet-webservice-1` … `-N` | Go gateway: receives requests, orchestrates services, writes result files | internal only |
-| BuEM | `enerplanet-buem-api` | Flask thermal model (ISO 52016-1 5R1C) | internal only |
-| Ignis | `enerplanet-ignis-api` | Heat-demand service (ISO 13790) | internal only |
-| Ignis DB | `enerplanet-ignis-db` | PostgreSQL backing Ignis (TABULA archetypes) | internal only |
-| PV | `enerplanet-pv` | Photovoltaic yield simulation | `8092` |
+| Component | Container name | Role | Compose file | Published to host |
+| --- | --- | --- | --- | --- |
+| HAProxy gateway | `enerplanet-sim-haproxy` | Single entry point, load-balances the webservice replicas | `docker-compose.unltd.yaml` | `8089` (API), `8405` (stats) |
+| Webservice | `enerplanet-webservice-1` … `-N` | Go gateway: receives requests, orchestrates services, writes result files | `docker-compose.unltd.yaml` | internal only |
+| BuEM | `enerplanet-buem-api` | Flask thermal model (ISO 52016-1 5R1C) | `building-model/docker-compose.building-model.yaml` | internal only |
+| Ignis | `enerplanet-ignis-api` | Heat-demand service (ISO 13790) | `building-model/docker-compose.building-model.yaml` | internal only |
+| Ignis DB | `enerplanet-ignis-db` | PostgreSQL backing Ignis (TABULA archetypes) | `building-model/docker-compose.building-model.yaml` | internal only |
+| PV | `enerplanet-pv` | Photovoltaic yield simulation | `renewables/docker-compose.pv.yaml` | `8092` |
 
 !!! warning "Only the gateway is public"
     Every service listens on the internal Docker network only. Send all requests
     to `http://localhost:8089`; the gateway routes them to the right backend. To
     reach a service container directly (e.g. for debugging) use `docker exec`.
+
+!!! info "Building-model namespace"
+    BuEM and Ignis are grouped in their own compose file, `building-model/docker-compose.building-model.yaml`,
+    separate from the gateway/webservice stack — the same grouping convention `renewables/docker-compose.pv.yaml`
+    already uses for PV. Unlike PV, BuEM and Ignis are load-bearing for every request the webservice handles, so
+    they stay on the *same* `enerplanet_sim_network` as the gateway stack rather than an isolated one: `make up`
+    creates that network first, then brings up both compose files against it. They are not exposed to the host
+    and have no reverse proxy of their own — requests reach them only through the webservice's internal fan-out.
 
 ## Request flow
 
@@ -97,7 +105,7 @@ Time-series results are grouped per **model**:
 | Command | Effect |
 | --- | --- |
 | `make build` | Build the `calliope-base` and `webservice` images (first run only) |
-| `make up` | Start the full stack (`docker-compose.unltd.yaml`) |
+| `make up` | Start the full stack (`docker-compose.unltd.yaml` + `building-model/docker-compose.building-model.yaml`) |
 | `make up-min` | Start the minimal / dev stack (`docker-compose.unltd.dev.yaml`) |
 | `make down` | Stop the stack |
 | `make logs` | Follow all container logs |

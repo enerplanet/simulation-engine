@@ -67,7 +67,9 @@ build-webservice:
 #==============================================================================
 up:
 	docker network create spatialhub-net 2>/dev/null || true
+	docker network create --driver bridge --subnet 172.20.0.0/16 --gateway 172.20.0.1 enerplanet_sim_network 2>/dev/null || true
 	docker volume create enerplanet_sim_shared_data 2>/dev/null || true
+	docker compose -f environment/building-model/docker-compose.building-model.yaml up -d
 	docker compose -f environment/docker-compose.unltd.yaml up -d
 	@sleep 2
 	docker network connect spatialhub-net enerplanet-sim-haproxy 2>/dev/null || true
@@ -87,12 +89,15 @@ up-min:
 
 down:
 	docker compose -f environment/docker-compose.unltd.yaml down
+	docker compose -f environment/building-model/docker-compose.building-model.yaml down
 
 restart:
 	docker compose -f environment/docker-compose.unltd.yaml restart
+	docker compose -f environment/building-model/docker-compose.building-model.yaml restart
 
 logs:
-	docker compose -f environment/docker-compose.unltd.yaml logs -f
+	docker compose -f environment/docker-compose.unltd.yaml logs -f &
+	docker compose -f environment/building-model/docker-compose.building-model.yaml logs -f
 
 #==============================================================================
 # INDIVIDUAL SERVICES
@@ -106,10 +111,12 @@ pv:
 stop:
 	@echo "Stopping running containers..."
 	docker compose -f environment/docker-compose.unltd.yaml down
+	docker compose -f environment/building-model/docker-compose.building-model.yaml down
 
 clean:
 	@echo "Stopping and cleaning up all Docker resources..."
 	docker compose -f environment/docker-compose.unltd.yaml down --rmi all
+	docker compose -f environment/building-model/docker-compose.building-model.yaml down --rmi all
 
 prune:
 	@echo "Removing unused Docker images and volumes..."

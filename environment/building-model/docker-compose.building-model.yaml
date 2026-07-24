@@ -1,0 +1,102 @@
+# Deliberately NOT named `building-simulation`. Tried that (2026-07-24) to
+# match the standalone ignis/buem-gateway repos' convention — broke instantly:
+# this file's `buem-service` key collides with buem-gateway's own `buem-service`
+# key. Compose keys ownership by (project, service-key), not container_name,
+# so bringing up buem-gateway's stack silently recreated *this* file's
+# enerplanet-buem-api container using buem-gateway's definition (and vice
+# versa on the next `up` here). This bundle also isn't the target
+# architecture ignis/buem-gateway represent — see
+# docs/architecture (or the 2026-07-22 decision note in the project vault) —
+# it's the interim demo-only grouping, so it keeps its own project identity
+# (defaults to `building-model`, the containing folder name) rather than
+# sharing one with the standalone repos.
+services:
+    # BuEM thermal building model service (ISO 52016-1 5R1C)
+    # Receives per-building GeoJSON from the sim worker and returns hourly
+    # heating/cooling profiles written to the enerplanet_sim_shared_data volume.
+    buem-service:
+        container_name: enerplanet-buem-api
+        build:
+            context: .
+            dockerfile: buem.dockerfile
+        restart: unless-stopped
+        expose:
+            - "5000"
+        environment:
+            - PYTHONPATH=/buem/src
+            - BUEM_WEATHER_DIR=/buem/data/weather
+            - BUEM_RESULTS_DIR=/app/results
+            - BUEM_CBC_EXE=/opt/conda/envs/buem_env/bin/cbc
+            - GUNICORN_WORKERS=${BUEM_WORKERS:-4}
+        volumes:
+            - ${BUEM_WEATHER_DIR_HOST:-../data/buem-weather}:/buem/data/weather:ro
+            - enerplanet_sim_shared_data:/app/results
+        healthcheck:
+            test: ["CMD-SHELL", "curl -fsS http://localhost:5000/api/health || exit 1"]
+            interval: 30s
+            timeout: 10s
+            start_period: 60s
+            retries: 5
+        networks:
+            enerplanet_sim_network:
+                ipv4_address: 172.20.0.7
+            spatialhub-net:
+
+    # Postgres database backing the Ignis heat-demand service (TABULA archetypes).
+    ignis_db:
+        image: postgres:15
+        container_name: enerplanet-ignis-db
+        restart: unless-stopped
+        environment:
+            - POSTGRES_USER=${IGNIS_DB_USER:-postgres}
+            - POSTGRES_PASSWORD=${IGNIS_DB_PASSWORD:-postgres}
+            - POSTGRES_DB=${IGNIS_DB_NAME:-ignis}
+        volumes:
+            - enerplanet_ignis_db_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "${IGNIS_DB_USER:-postgres}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            enerplanet_sim_network:
+
+    # Ignis heat-demand service (ISO 13790, TABULA archetypes).
+    # Public repo, no access token required.
+    ignis-service:
+        container_name: enerplanet-ignis-api
+        build:
+            context: .
+            dockerfile: ignis.dockerfile
+        restart: unless-stopped
+        depends_on:
+            - ignis_db
+        expose:
+            - "8090"
+        environment:
+            - APP_PORT=8090
+            - DB_HOST=ignis_db
+            - DB_PORT=5432
+            - DB_USER=${IGNIS_DB_USER:-postgres}
+            - DB_PASSWORD=${IGNIS_DB_PASSWORD:-postgres}
+            - DB_NAME=${IGNIS_DB_NAME:-ignis}
+            - DB_SSL_MODE=disable
+            - ALLOWED_ORIGINS=${IGNIS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
+        networks:
+            enerplanet_sim_network:
+                ipv4_address: 172.20.0.8
+            spatialhub-net:
+
+volumes:
+  enerplanet_sim_shared_data:
+    external: true
+  enerplanet_ignis_db_data:
+
+networks:
+    # Created once by `make up` (docker network create) so this file and
+    # docker-compose.unltd.yaml attach to the same network — webservice_N
+    # reaches buem/ignis by static IP across the two compose stacks.
+    enerplanet_sim_network:
+        external: true
+    spatialhub-net:
+        external: true
