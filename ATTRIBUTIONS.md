@@ -16,7 +16,7 @@ project pinned to a branch that fixes packaging for our container build.
 | Institution | Utrecht University — CETP programme, funded by NWO (Dutch Research Council) |
 | Licence | MIT |
 | Documentation | <https://buem.readthedocs.io> |
-| Fork we deploy | `https://github.com/enerplanet/buem` (branch `main`) |
+| Fork we deploy | `https://github.com/enerplanet/buem` (branch `enerplanet`) |
 | Built by | `environment/building-model/buem.dockerfile` |
 
 BuEM's building typology is itself derived from the

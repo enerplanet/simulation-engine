@@ -9,7 +9,7 @@ RUN apt-get update \
 # We build a fork that only fixes container packaging and API; the model is unchanged.
 # Public repo — no access token required.
 WORKDIR /
-RUN git clone --branch main https://github.com/enerplanet/buem.git
+RUN git clone --branch enerplanet https://github.com/enerplanet/buem.git
 
 WORKDIR /buem
 RUN conda env create -f environment_docker.yml && conda clean -afy
