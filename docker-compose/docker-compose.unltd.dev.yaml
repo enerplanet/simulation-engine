@@ -10,7 +10,6 @@ services:
             - ./haproxy/haproxy.dev.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
         depends_on:
             - s6et_webservice_1
-            - s6et_webservice_2
         networks:
             sim_network:
                 ipv4_address: 172.20.0.10
@@ -31,7 +30,7 @@ services:
         expose:
             - "8081"
         extra_hosts:
-            - "host.docker.internal:host-gateway"
+            - "host.docker.internal:${HOST_IP:-host-gateway}"
         environment:
             - SERVER_HOST=0.0.0.0
             - SERVER_PORT=8081
@@ -48,7 +47,7 @@ services:
             - GEOTHERMAL_SERVICE_HOST=172.20.0.6
             - GEOTHERMAL_SERVICE_PORT=8087
             - CALLBACK_HOST=host.docker.internal
-            - CALLBACK_PORT=3001
+            - CALLBACK_PORT=8000
         deploy:
             resources:
                 limits:
@@ -60,51 +59,6 @@ services:
         networks:
             sim_network:
                 ipv4_address: 172.20.0.21
-            spatialhub-net:
-
-    # Simulation engine instance 2
-    s6et_webservice_2:
-        image: s6et_webservice
-        container_name: s6et-webservice-2
-        volumes:
-            - sim_shared_data:/webservice/data
-        platform: linux/amd64
-        build:
-            context: ../webservice.docker/
-            dockerfile: webservice.dockerfile
-        restart: always
-        expose:
-            - "8081"
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
-        environment:
-            - SERVER_HOST=0.0.0.0
-            - SERVER_PORT=8081
-            - REQUEST_TIMEOUT=0
-            - RETRY_ATTEMPTS=0
-            - RETRY_BASE_DELAY=1000
-            - MAX_CONCURRENT_SIMS=5
-            - PV_SERVICE_HOST=172.20.0.3
-            - PV_SERVICE_PORT=8082
-            - WIND_SERVICE_HOST=172.20.0.4
-            - WIND_SERVICE_PORT=8083
-            - BIOMASS_SERVICE_HOST=172.20.0.5
-            - BIOMASS_SERVICE_PORT=8084
-            - GEOTHERMAL_SERVICE_HOST=172.20.0.6
-            - GEOTHERMAL_SERVICE_PORT=8087
-            - CALLBACK_HOST=host.docker.internal
-            - CALLBACK_PORT=3001
-        deploy:
-            resources:
-                limits:
-                    cpus: '2'
-                    memory: 4G
-                reservations:
-                    cpus: '2'
-                    memory: 4G
-        networks:
-            sim_network:
-                ipv4_address: 172.20.0.22
             spatialhub-net:
 
 volumes:
