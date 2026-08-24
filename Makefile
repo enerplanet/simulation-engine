@@ -78,10 +78,19 @@ up:
 	@echo "  HAProxy Stats: http://localhost:8405/stats"
 	@echo "  Health Check:  http://localhost:8089/health"
 
+env:
+	@if [ -f webservice.docker/servicehub/.env ]; then \
+		echo "⏭️  Environment file already exists at webservice.docker/servicehub/.env — skipping copy."; \
+	else \
+		echo "Setting up environment variables..."; \
+		cp .env.docker webservice.docker/servicehub/.env; \
+		echo "✓ Environment variables set up. Edit webservice.docker/servicehub/.env as needed."; \
+	fi
+
 up-min:
 	docker network create spatialhub-net 2>/dev/null || true
 	docker volume create sim_shared_data 2>/dev/null || true
-	docker compose -f docker-compose/docker-compose.unltd.dev.yaml up -d
+	HOST_IP=$$(hostname -I | awk '{print $$1}') docker compose -f docker-compose/docker-compose.unltd.dev.yaml up -d
 	@sleep 2
 	docker network connect spatialhub-net sim-haproxy 2>/dev/null || true
 	@echo "✓ Simulation engine started"
@@ -133,7 +142,7 @@ prune:
 #==============================================================================
 dev:
 	docker network create spatialhub-net 2>/dev/null || true
-	docker compose -f docker-compose/docker-compose.dev.yaml up -d
+	HOST_IP=$$(hostname -I) docker compose -f docker-compose/docker-compose.dev.yaml up -d
 	@echo "✓ Development mode started with hot reload"
 
 generate-profiles:
