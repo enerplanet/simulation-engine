@@ -4,13 +4,13 @@ ARG gitlab_token_pv
 
 # Install curl, git, git-lfs, and dos2unix
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    curl \
-    git \
-    git-lfs \
-    dos2unix \
-    p7zip-full && \
-    rm -rf /var/lib/apt/lists/*
+  apt-get install -y --no-install-recommends \
+  curl \
+  git \
+  git-lfs \
+  dos2unix \
+  p7zip-full && \
+  rm -rf /var/lib/apt/lists/*
 
 
 # Install pip using get-pip.py for Python 3.10
@@ -32,7 +32,7 @@ RUN python3.10 -m pip install gunicorn==23.0.0
 
 # Clone PV simulation repo
 WORKDIR /
-ADD pysam-photovoltaic-simulation /pv_simulation
+ADD pysam-photovoltaic-energy-simulation /pv_simulation
 
 RUN 7z x /pv_simulation/merra_2_access/input_files.7z -o/pv_simulation/merra-2-db
 
@@ -43,8 +43,8 @@ RUN mv /pv_simulation/docker.env /pv_simulation/.env
 
 # Set permissions
 RUN chmod +x \
-    /pv_simulation/scripts/start.sh \
-    /pv_simulation/scripts/start.py
+  /pv_simulation/scripts/start.sh \
+  /pv_simulation/scripts/start.py
 
 # Convert line endings to Unix format
 RUN find /pv_simulation -type f -name "*.py" -exec dos2unix {} \;

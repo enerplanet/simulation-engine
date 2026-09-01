@@ -4,13 +4,13 @@ ARG gitlab_token_biomass
 
 # Install curl, git, git-lfs, and dos2unix
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    curl \
-    git \
-    git-lfs \
-    dos2unix \
-    p7zip-full && \
-    rm -rf /var/lib/apt/lists/*
+  apt-get install -y --no-install-recommends \
+  curl \
+  git \
+  git-lfs \
+  dos2unix \
+  p7zip-full && \
+  rm -rf /var/lib/apt/lists/*
 
 # Install pip using get-pip.py for Python 3.10
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
@@ -27,7 +27,7 @@ RUN python3.10 -m pip install gunicorn==23.0.0
 
 # Clone biomass simulation repo
 WORKDIR /
-ADD pysam-biomass-energy-simulation /biomass_simulation
+ADD pysam-biomass-energy-energy-simulation /biomass_simulation
 
 
 WORKDIR /biomass_simulation
@@ -35,13 +35,13 @@ RUN 7z x /biomass_simulation/merra_2_access/input_files.7z -o/biomass_simulation
 
 RUN rm -rf /biomass_simulation/merra_2_access
 
-# Set Environment Variables 
+# Set Environment Variables
 RUN cp /biomass_simulation/docker.env /biomass_simulation/.env
 
 # Set permissions
 RUN chmod +x \
-    /biomass_simulation/scripts/start.sh \
-    /biomass_simulation/scripts/start.py 
+  /biomass_simulation/scripts/start.sh \
+  /biomass_simulation/scripts/start.py
 
 # Convert line endings to Unix format
 RUN find /biomass_simulation -type f -name "*.py" -exec dos2unix {} \;
